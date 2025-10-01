@@ -10,4 +10,5 @@ dependencies = [
     "django-crispy-forms>=2.0",
     "crispy-bootstrap5>=0.7",
     "django-jazzmin>=3.0.1",
+    "django-bootstrap5>=24.2",
 ]

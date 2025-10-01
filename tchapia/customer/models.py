@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from userauths.models import SERVICE_CHOICES
 
 # Create your models here.
 
@@ -44,8 +45,9 @@ class Project(models.Model):
     handyman = models.ForeignKey('handyman.Handyman', on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
     name = models.CharField(max_length=200)
     description = models.TextField()
-    budget_min = models.DecimalField(max_digits=10, decimal_places=2, help_text='Minimum budget in XAF')
-    budget_max = models.DecimalField(max_digits=10, decimal_places=2, help_text='Maximum budget in XAF')
+    service = models.CharField(max_length=50, choices=SERVICE_CHOICES, default='plumbing')
+    budget_min = models.DecimalField(max_digits=10, decimal_places=2, help_text='Minimum budget in XAF', blank=True, null=True)
+    budget_max = models.DecimalField(max_digits=10, decimal_places=2, help_text='Maximum budget in XAF', blank=True, null=True)
     location_address = models.TextField()
     city = models.CharField(max_length=100)
     region = models.CharField(max_length=20)
@@ -63,7 +65,18 @@ class Project(models.Model):
 
     @property
     def budget_range(self):
-        return f"{self.budget_min:,.0f} - {self.budget_max:,.0f} XAF"
+        # Handle both None and 0 as "no budget specified"
+        min_budget = self.budget_min if self.budget_min and self.budget_min > 0 else None
+        max_budget = self.budget_max if self.budget_max and self.budget_max > 0 else None
+
+        if min_budget and max_budget:
+            return f"{min_budget:,.0f} - {max_budget:,.0f} XAF"
+        elif min_budget:
+            return f"À partir de {min_budget:,.0f} XAF"
+        elif max_budget:
+            return f"Jusqu'à {max_budget:,.0f} XAF"
+        else:
+            return "Budget à négocier"
 
     @property
     def is_active(self):
@@ -73,15 +86,3 @@ class Project(models.Model):
         db_table = 'customer_project'
         ordering = ['-created_at']
 
-class ProjectService(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='services')
-    service = models.ForeignKey('base.Service', on_delete=models.CASCADE)
-    requirements = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.project.name} - {self.service.name}"
-
-    class Meta:
-        db_table = 'customer_projectservice'
-        unique_together = ['project', 'service']

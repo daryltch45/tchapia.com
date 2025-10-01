@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer, Project, ProjectService
+from .models import Customer, Project
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -11,15 +11,8 @@ class CustomerAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['name', 'customer', 'handyman', 'status', 'priority', 'budget_range', 'city', 'created_at']
-    list_filter = ['status', 'priority', 'region', 'created_at']
+    list_display = ['name', 'customer', 'service', 'handyman', 'status', 'priority', 'budget_range', 'city', 'created_at']
+    list_filter = ['service', 'status', 'priority', 'region', 'created_at']
     search_fields = ['name', 'description', 'customer__user__first_name', 'handyman__user__first_name']
     ordering = ['-created_at']
     readonly_fields = ['created_at', 'updated_at']
-
-@admin.register(ProjectService)
-class ProjectServiceAdmin(admin.ModelAdmin):
-    list_display = ['project', 'service', 'created_at']
-    list_filter = ['service', 'created_at']
-    search_fields = ['project__name', 'service__name']
-    ordering = ['-created_at']

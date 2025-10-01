@@ -3,7 +3,10 @@
     "allow": [
       "Bash(uv sync:*)",
       "Bash(python manage.py:*)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(python3 manage.py check:*)",
+      "Bash(python3 manage.py makemigrations:*)",
+      "Read(//Users/daryltchienang/Documents/learnings/**)"
     ],
     "deny": [],
     "ask": []

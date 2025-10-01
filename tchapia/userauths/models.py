@@ -16,17 +16,30 @@ REGION_CHOICES = [
     ('west', 'West'),
 ]
 
-USER_TYPE_CHOICES = [
-    ('customer', 'Customer'),
-    ('handyman', 'Handyman'),
-    ('admin', 'Admin'),
+USER_TYPE = [
+    ('artisan', 'Artisan'),
+    ('client', 'Client'),
+]
+
+SERVICE_CHOICES = [
+    ('plomberie', 'Plomberie'),
+    ('electricite', 'Électricité'),
+    ('menuiserie', 'Menuiserie'),
+    ('peinture', 'Peinture'),
+    ('maconnerie', 'Maçonnerie'),
+    ('jardinage', 'Jardinage'),
+    ('climatisation', 'Climatisation'),
+    ('carrelage', 'Carrelage'),
+    ('nettoyage', 'Nettoyage'),
+    ('serrurerie', 'Serrurerie'),
 ]
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     whatsapp = models.CharField(max_length=20, blank=True, null=True)
-    user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='customer')
+    user_type = models.CharField(max_length=20, choices=USER_TYPE, default='customer')
+    service = models.CharField(max_length=20, choices=SERVICE_CHOICES, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=100)
     region = models.CharField(max_length=20, choices=REGION_CHOICES)

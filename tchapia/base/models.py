@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-# Create your models here.
-
 STATUS_CHOICES = [
     ('active', 'Active'),
     ('inactive', 'Inactive'),

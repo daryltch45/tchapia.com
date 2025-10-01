@@ -4,5 +4,8 @@ from . import views
 app_name = 'customer'
 
 urlpatterns = [
-
+    path('post-project/', views.post_project_view, name='post_project'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
+    path('project/<int:project_id>/', views.project_detail_view, name='project_detail'),
+    path('project/<int:project_id>/edit/', views.project_edit_view, name='project_edit'),
 ]

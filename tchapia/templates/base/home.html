@@ -1,0 +1,411 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="hero-section text-white py-5" style="
+    background: linear-gradient(rgba(40, 167, 69, 0.75), rgba(40, 167, 69, 0.75)), url('/media/images/home_image.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 60vh;
+">
+    <div class="container d-flex align-items-center h-100">
+        <div class="row align-items-center w-100">
+            <div class="col-lg">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-tools me-3"></i>
+                    Trouvez des Artisans Qualifiés au Cameroun
+                </h1>
+                <p class="lead mb-4">
+                    Tchapia connecte les clients avec les meilleurs artisans du Cameroun.
+                    Plomberie, électricité, menuiserie, peinture et plus encore.
+                </p>
+
+                <!-- Search Section -->
+                <div class="bg-white p-4 rounded-3 shadow-sm mb-4">
+                    <label class="form-label text-dark fw-bold mb-3">
+                        <i class="fas fa-search text-success me-2"></i>Que cherchez-vous ?
+                    </label>
+
+                    <div class="row g-2">
+                        <!-- Search Input -->
+                        <div class="col-md-4">
+                            <input type="text"
+                                   class="form-control form-control-lg"
+                                   placeholder="Ex: réparation plomberie"
+                                   id="searchQuery">
+                        </div>
+
+                        <!-- Service Category -->
+                        <div class="col-md-3">
+                            <select class="form-select form-select-lg" id="serviceCategory">
+                                <option value="">Tous services</option>
+                                <option value="plomberie">Plomberie</option>
+                                <option value="electricite">Électricité</option>
+                                <option value="menuiserie">Menuiserie</option>
+                                <option value="peinture">Peinture</option>
+                                <option value="maconnerie">Maçonnerie</option>
+                                <option value="jardinage">Jardinage</option>
+                                <option value="climatisation">Climatisation</option>
+                                <option value="carrelage">Carrelage</option>
+                            </select>
+                        </div>
+
+                        <!-- City Selection -->
+                        <div class="col-md-3">
+                            <select class="form-select form-select-lg" id="citySelect">
+                                <option value="">Toutes les villes</option>
+                                <option value="douala">Douala</option>
+                                <option value="yaounde">Yaoundé</option>
+                                <option value="bafoussam">Bafoussam</option>
+                                <option value="bamenda">Bamenda</option>
+                                <option value="garoua">Garoua</option>
+                                <option value="maroua">Maroua</option>
+                                <option value="ngaoundere">Ngaoundéré</option>
+                                <option value="bertoua">Bertoua</option>
+                                <option value="ebolowa">Ebolowa</option>
+                                <option value="kumba">Kumba</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="col-md-2">
+                            <button type="button"
+                                    class="btn btn-success btn-lg w-100"
+                                    onclick="searchArtisans()">
+                                <i class="fas fa-search me-1"></i>Trouvez
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Popular searches -->
+                    <div class="mt-3">
+                        <small class="text-muted d-block mb-2">Recherches populaires :</small>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-light text-dark border">Plombier urgence</span>
+                            <span class="badge bg-light text-dark border">Électricien Douala</span>
+                            <span class="badge bg-light text-dark border">Menuisier meuble</span>
+                            <span class="badge bg-light text-dark border">Peintre maison</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    {% if user.is_authenticated %}
+                        <!-- For logged-in users -->
+                        {% if user.user_type == 'artisan' %}
+                            <a href="/handyman/dashboard/" class="btn btn-light btn-lg">
+                                <i class="fas fa-tachometer-alt me-2"></i>Mon Tableau de Bord
+                            </a>
+                        {% elif user.user_type == 'client' %}
+                            <a href="/customer/dashboard/" class="btn btn-light btn-lg">
+                                <i class="fas fa-project-diagram me-2"></i>Mes Projets
+                            </a>
+                        {% else %}
+                            <a href="{% url 'base:handymen_list' %}" class="btn btn-light btn-lg">
+                                <i class="fas fa-users me-2"></i>Voir les Artisans
+                            </a>
+                        {% endif %}
+                        <a href="#services" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Explorer Services
+                        </a>
+                    {% else %}
+                        <!-- For anonymous users -->
+                        <a href="/auth/register/" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>S'inscrire
+                        </a>
+                        <a href="#services" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-search me-2"></i>Explorer Services
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="services" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Nos Services</h2>
+            <p class="text-muted">Découvrez notre large gamme de services artisanaux</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-wrench fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Plomberie</h5>
+                        <p class="card-text text-muted">Installation, réparation, dépannage</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-bolt fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Électricité</h5>
+                        <p class="card-text text-muted">Installation électrique, câblage</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-hammer fa-3x text-danger mb-3"></i>
+                        <h5 class="card-title">Menuiserie</h5>
+                        <p class="card-text text-muted">Meubles, portes, fenêtres</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-paint-roller fa-3x text-info mb-3"></i>
+                        <h5 class="card-title">Peinture</h5>
+                        <p class="card-text text-muted">Peinture intérieure et extérieure</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View All Services Link -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="{% url 'base:services_list' %}" class="btn btn-outline-success btn-lg">
+                    <i class="fas fa-list me-2"></i>Voir tous nos services
+                </a>
+                <p class="text-muted mt-2 mb-0">
+                    Découvrez notre gamme complète de services artisanaux
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Comment ça marche ?</h2>
+            <p class="text-muted">Deux façons simples de trouver votre artisan</p>
+        </div>
+
+        <div class="row g-5">
+            <!-- Option 1: Poster un projet -->
+            <div class="col-lg-6">
+                <div class="text-center mb-4">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-project-diagram fa-2x"></i>
+                    </div>
+                    <h4 class="mt-3 mb-3">Postez votre projet</h4>
+                    <p class="text-muted">Décrivez votre besoin et recevez plusieurs devis</p>
+                </div>
+
+                <div class="position-relative">
+                    <!-- Step 1 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">1</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Décrivez votre projet</h6>
+                            <p class="text-muted mb-0 small">Précisez le type de travaux, votre budget et vos attentes</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Recevez des devis</h6>
+                            <p class="text-muted mb-0 small">Les artisans intéressés vous contactent avec leurs propositions</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">3</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Comparez et choisissez</h6>
+                            <p class="text-muted mb-0 small">Évaluez les profils, prix et avis pour faire votre choix</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'customer:post_project' %}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Poster un projet
+                        </a>
+                    </div>
+
+                    <!-- Vertical line -->
+                    <div class="position-absolute top-0 start-0 bg-success" style="width: 2px; height: 100%; margin-left: 19px; opacity: 0.3;"></div>
+                </div>
+            </div>
+
+            <!-- Option 2: Contacter directement -->
+            <div class="col-lg-6">
+                <div class="text-center mb-4">
+                    <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-search fa-2x"></i>
+                    </div>
+                    <h4 class="mt-3 mb-3">Trouvez un artisan</h4>
+                    <p class="text-muted">Recherchez directement dans nos catégories</p>
+                </div>
+
+                <div class="position-relative">
+                    <!-- Step 1 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">1</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Choisissez une catégorie</h6>
+                            <p class="text-muted mb-0 small">Plomberie, électricité, menuiserie, peinture, etc.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Consultez les profils</h6>
+                            <p class="text-muted mb-0 small">Voir les avis, photos des réalisations et tarifs</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="d-flex mb-4">
+                        <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; min-width: 40px;">
+                            <span class="fw-bold">3</span>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Contactez directement</h6>
+                            <p class="text-muted mb-0 small">Appelez ou envoyez un message à l'artisan de votre choix</p>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'base:handymen_list' %}" class="btn btn-warning">
+                            <i class="fas fa-search me-2"></i>Explorer les artisans
+                        </a>
+                    </div>
+
+                    <!-- Vertical line -->
+                    <div class="position-absolute top-0 start-0 bg-warning" style="width: 2px; height: 100%; margin-left: 19px; opacity: 0.3;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Separator -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="bg-success mx-auto" style="width: 60px; height: 3px; border-radius: 2px;"></div>
+                    <p class="text-muted mt-3 mb-0">
+                        <i class="fas fa-shield-alt text-success me-2"></i>
+                        Tous nos artisans sont vérifiés et assurés
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Pourquoi Choisir Tchapia ?</h2>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Artisans Vérifiés</h6>
+                                <p class="text-muted mb-0">Tous nos artisans sont vérifiés et qualifiés</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <i class="fas fa-shield-alt text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Paiement Sécurisé</h6>
+                                <p class="text-muted mb-0">Mobile Money MTN et Orange Money</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="d-flex">
+                            <i class="fas fa-star text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-1">Avis Clients</h6>
+                                <p class="text-muted mb-0">Système d'évaluation et commentaires</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-center">
+                <div class="bg-success text-white p-4 rounded">
+                    <h3 class="mb-3">Rejoignez-nous !</h3>
+                    <p class="mb-4">Plus de 1000 artisans dans tout le Cameroun</p>
+                    <a href="/auth/register/" class="btn btn-light">
+                        <i class="fas fa-user-plus me-2"></i>Devenir Artisan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+function searchArtisans() {
+    const query = document.getElementById('searchQuery').value.trim();
+    const service = document.getElementById('serviceCategory').value;
+    const city = document.getElementById('citySelect').value;
+
+    // Build search parameters
+    const params = new URLSearchParams();
+    if (service) params.append('service', service);
+    if (city) params.append('city', city);
+
+    // Redirect to artisan list with filters
+    const redirectUrl = '{% url "base:handymen_list" %}' + (params.toString() ? '?' + params.toString() : '');
+    window.location.href = redirectUrl;
+}
+
+// Allow search on Enter key
+document.getElementById('searchQuery').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchArtisans();
+    }
+});
+
+// Add click handlers to popular search badges
+document.addEventListener('DOMContentLoaded', function() {
+    const badges = document.querySelectorAll('.badge');
+    badges.forEach(function(badge) {
+        badge.style.cursor = 'pointer';
+        badge.addEventListener('click', function() {
+            document.getElementById('searchQuery').value = this.textContent.trim();
+            searchArtisans();
+        });
+    });
+});
+</script>
+{% endblock extra_js %}

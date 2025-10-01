@@ -1,0 +1,315 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Page Header -->
+                <div class="text-center mb-5">
+                    <h1 class="display-5 fw-bold text-success mb-3">
+                        <i class="fas fa-user-edit me-3"></i>Modifier mon Profil
+                    </h1>
+                    <p class="lead text-muted">
+                        Mettez à jour vos informations personnelles et professionnelles
+                    </p>
+                    <div class="bg-success mx-auto" style="width: 60px; height: 3px; border-radius: 2px;"></div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-lg-6">
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-user me-2"></i>Informations Personnelles
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user text-success me-2"></i>Prénom
+                                            </label>
+                                            {{ user_form.first_name }}
+                                            {% if user_form.first_name.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.first_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user text-success me-2"></i>Nom de famille
+                                            </label>
+                                            {{ user_form.last_name }}
+                                            {% if user_form.last_name.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.last_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.email.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-envelope text-success me-2"></i>Email
+                                        </label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.email.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.phone.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-phone text-success me-2"></i>Téléphone
+                                        </label>
+                                        {{ user_form.phone }}
+                                        {% if user_form.phone.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.phone.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.service.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-tools text-success me-2"></i>Service
+                                            </label>
+                                            {{ user_form.service }}
+                                            {% if user_form.service.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.service.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.region.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-map-marker-alt text-success me-2"></i>Région
+                                            </label>
+                                            {{ user_form.region }}
+                                            {% if user_form.region.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.region.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.city.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-city text-success me-2"></i>Ville
+                                        </label>
+                                        {{ user_form.city }}
+                                        {% if user_form.city.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.city.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.address.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-home text-success me-2"></i>Adresse
+                                        </label>
+                                        {{ user_form.address }}
+                                        {% if user_form.address.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.address.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <label for="{{ user_form.bio.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-info-circle text-success me-2"></i>Bio
+                                        </label>
+                                        {{ user_form.bio }}
+                                        {% if user_form.bio.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.bio.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Présentez-vous en quelques mots
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Information -->
+                        <div class="col-lg-6">
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-briefcase me-2"></i>Informations Professionnelles
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ handyman_form.experience_years.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-calendar-alt text-primary me-2"></i>Années d'expérience
+                                            </label>
+                                            {{ handyman_form.experience_years }}
+                                            {% if handyman_form.experience_years.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in handyman_form.experience_years.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ handyman_form.hourly_rate.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-money-bill-wave text-primary me-2"></i>Tarif horaire (XAF)
+                                            </label>
+                                            {{ handyman_form.hourly_rate }}
+                                            {% if handyman_form.hourly_rate.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in handyman_form.hourly_rate.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                            <small class="form-text text-muted">Optionnel</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ handyman_form.skills.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-star text-primary me-2"></i>Compétences et spécialités
+                                        </label>
+                                        {{ handyman_form.skills }}
+                                        {% if handyman_form.skills.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in handyman_form.skills.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Décrivez vos compétences techniques et vos spécialités
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ handyman_form.id_card_number.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-id-card text-primary me-2"></i>Numéro de carte d'identité
+                                        </label>
+                                        {{ handyman_form.id_card_number }}
+                                        {% if handyman_form.id_card_number.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in handyman_form.id_card_number.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">Optionnel - pour la vérification</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ handyman_form.id_card_image.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-image text-primary me-2"></i>Photo de carte d'identité
+                                        </label>
+                                        {{ handyman_form.id_card_image }}
+                                        {% if handyman_form.id_card_image.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in handyman_form.id_card_image.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if handyman.id_card_image %}
+                                            <small class="form-text text-success">
+                                                <i class="fas fa-check me-1"></i>Image actuelle chargée
+                                            </small>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <div class="form-check">
+                                            {{ handyman_form.availability }}
+                                            <label class="form-check-label fw-semibold" for="{{ handyman_form.availability.id_for_label }}">
+                                                <i class="fas fa-check-circle text-success me-2"></i>Disponible pour de nouveaux projets
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Décochez si vous n'êtes pas disponible temporairement
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow border-0">
+                                <div class="card-body text-center p-4">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                        <a href="{% url 'handyman:projects' %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                                            <i class="fas fa-times me-2"></i>Annuler
+                                        </a>
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Profile Status -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card border-0 bg-info text-white">
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                                        <h6>Statut de vérification</h6>
+                                        <p class="small mb-0">
+                                            {% if handyman.verification_status == 'verified' %}
+                                                <span class="badge bg-success">Vérifié</span>
+                                            {% elif handyman.verification_status == 'pending' %}
+                                                <span class="badge bg-warning">En attente</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Non vérifié</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="fas fa-star fa-2x mb-2"></i>
+                                        <h6>Note moyenne</h6>
+                                        <p class="small mb-0">{{ handyman.average_rating|floatformat:1 }}/5</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                        <h6>Projets terminés</h6>
+                                        <p class="small mb-0">{{ handyman.total_projects }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

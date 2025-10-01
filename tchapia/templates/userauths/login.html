@@ -1,0 +1,74 @@
+{% extends 'partials/base.html' %} 
+{% block content %}
+    <section class="container">
+        <div class="row justify-content-center align-items-center min-vh-100 py-4">
+            <div class="col-md-6 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>
+                            Tchapia
+                        </h4>
+                        <small>Connexion</small>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Login Form -->
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">
+                                    <i class="fas fa-envelope me-1"></i>Email
+                                </label>
+                                <input type="email"
+                                       class="form-control"
+                                       id="username"
+                                       name="username"
+                                       placeholder="votre@email.com"
+                                       required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="fas fa-lock me-1"></i>Mot de passe
+                                </label>
+                                <input type="password"
+                                       class="form-control"
+                                       id="password"
+                                       name="password"
+                                       placeholder="Votre mot de passe"
+                                       required>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Pas encore de compte?
+                                <a href="{% url 'userauths:register' %}" class="text-success">S'inscrire</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center text-muted">
+                        <small>Tchapia - Artisans du Cameroun</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

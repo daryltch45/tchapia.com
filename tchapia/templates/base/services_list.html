@@ -1,0 +1,234 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row mb-5">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold text-success mb-3">
+                    <i class="fas fa-list me-3"></i>Nos Services
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Découvrez toute la gamme de services proposés par nos artisans qualifiés
+                </p>
+                <div class="bg-success mx-auto" style="width: 60px; height: 3px; border-radius: 2px;"></div>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        <div class="row g-4">
+            {% for service in services_with_counts %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <a href="{% url 'base:handymen_list' %}?service={{ service.code }}"
+                       class="text-decoration-none service-card-link">
+                        <div class="card h-100 text-center border-0 shadow-sm service-card">
+                            <div class="card-body d-flex flex-column">
+                                <!-- Service Icon -->
+                                <div class="mb-3">
+                                    {% if service.code == 'plomberie' %}
+                                        <i class="fas fa-wrench fa-3x text-primary"></i>
+                                    {% elif service.code == 'electricite' %}
+                                        <i class="fas fa-bolt fa-3x text-warning"></i>
+                                    {% elif service.code == 'menuiserie' %}
+                                        <i class="fas fa-hammer fa-3x text-danger"></i>
+                                    {% elif service.code == 'peinture' %}
+                                        <i class="fas fa-paint-roller fa-3x text-info"></i>
+                                    {% elif service.code == 'maconnerie' %}
+                                        <i class="fas fa-building fa-3x text-secondary"></i>
+                                    {% elif service.code == 'jardinage' %}
+                                        <i class="fas fa-leaf fa-3x text-success"></i>
+                                    {% elif service.code == 'climatisation' %}
+                                        <i class="fas fa-fan fa-3x text-primary"></i>
+                                    {% elif service.code == 'carrelage' %}
+                                        <i class="fas fa-th fa-3x text-dark"></i>
+                                    {% elif service.code == 'nettoyage' %}
+                                        <i class="fas fa-broom fa-3x text-info"></i>
+                                    {% elif service.code == 'serrurerie' %}
+                                        <i class="fas fa-key fa-3x text-warning"></i>
+                                    {% else %}
+                                        <i class="fas fa-tools fa-3x text-success"></i>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Service Name -->
+                                <h5 class="card-title text-dark mb-2">{{ service.name }}</h5>
+
+                                <!-- Artisan Count -->
+                                <div class="mt-auto">
+                                    {% if service.count > 0 %}
+                                        <span class="badge bg-success px-3 py-2">
+                                            {{ service.count }}
+                                            artisan{{ service.count|pluralize }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark px-3 py-2">
+                                            Bientôt disponible
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Service Description -->
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        {% if service.code == 'plomberie' %}
+                                            Installation, réparation, dépannage
+                                        {% elif service.code == 'electricite' %}
+                                            Installation électrique, câblage, dépannage
+                                        {% elif service.code == 'menuiserie' %}
+                                            Meubles, portes, fenêtres, aménagement
+                                        {% elif service.code == 'peinture' %}
+                                            Peinture intérieure et extérieure
+                                        {% elif service.code == 'maconnerie' %}
+                                            Construction, rénovation, maçonnerie
+                                        {% elif service.code == 'jardinage' %}
+                                            Entretien jardin, taille, plantation
+                                        {% elif service.code == 'climatisation' %}
+                                            Installation et maintenance clim
+                                        {% elif service.code == 'carrelage' %}
+                                            Pose et rénovation de carrelage
+                                        {% elif service.code == 'nettoyage' %}
+                                            Nettoyage professionnel et ménage
+                                        {% elif service.code == 'serrurerie' %}
+                                            Serrures, blindage, dépannage
+                                        {% else %}
+                                            Services artisanaux professionnels
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Hover Effect Overlay -->
+                            <div class="card-overlay">
+                                <div class="overlay-content">
+                                    <i class="fas fa-arrow-right fa-2x text-white"></i>
+                                    <p class="text-white mt-2 mb-0">Voir les artisans</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Call to Action Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-success text-white text-center border-0 shadow">
+                    <div class="card-body py-5">
+                        <h3 class="mb-3">Vous ne trouvez pas le service recherché ?</h3>
+                        <p class="lead mb-4">
+                            Contactez-nous ou postez votre projet. Nos artisans vous proposeront des solutions sur mesure.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="{% url 'base:home' %}#search" class="btn btn-light btn-lg">
+                                <i class="fas fa-search me-2"></i>Rechercher un artisan
+                            </a>
+                            <a href="{% url 'customer:post_project' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-plus me-2"></i>Poster un projet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="text-center">
+                    <h4 class="text-muted mb-4">Nos chiffres</h4>
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <h3 class="text-success mb-1">100+</h3>
+                                <small class="text-muted">Artisans qualifiés</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <h3 class="text-success mb-1">{{ service_choices|length }}</h3>
+                                <small class="text-muted">Services disponibles</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <h3 class="text-success mb-1">10+</h3>
+                                <small class="text-muted">Régions couvertes</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3">
+                                <h3 class="text-success mb-1">24/7</h3>
+                                <small class="text-muted">Support client</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .service-card {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .service-card-link:hover .service-card {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    .service-card-link:hover .service-card .card-title {
+        color: white !important;
+    }
+
+    .service-card-link:hover .service-card .text-muted {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .service-card-link:hover .service-card i {
+        color: white !important;
+        transform: scale(1.1);
+    }
+
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(40, 167, 69, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .service-card:hover .card-overlay {
+        opacity: 1;
+    }
+
+    .overlay-content {
+        text-align: center;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+
+    .service-card:hover .overlay-content {
+        transform: translateY(0);
+    }
+
+    .service-card i {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock content %}

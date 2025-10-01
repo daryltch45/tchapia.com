@@ -1,0 +1,158 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-success mb-2">
+                    <i class="fas fa-tachometer-alt me-3"></i>Tableau de Bord
+                </h1>
+                <p class="lead text-muted">Gérez vos projets et suivez vos demandes</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3">Actions Rapides</h5>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="{% url 'customer:post_project' %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-plus me-2"></i>Nouveau Projet
+                            </a>
+                            <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-users me-2"></i>Voir les Artisans
+                            </a>
+                            <a href="{% url 'base:services_list' %}" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-list me-2"></i>Services
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-project-diagram fa-3x text-success mb-3"></i>
+                        <h3 class="text-success">{{ customer.total_projects }}</h3>
+                        <p class="text-muted mb-0">Projets Totaux</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle fa-3x text-warning mb-3"></i>
+                        <h3 class="text-warning">{{ customer.completed_projects }}</h3>
+                        <p class="text-muted mb-0">Projets Terminés</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-3x text-info mb-3"></i>
+                        <h3 class="text-info">{{ projects.count }}</h3>
+                        <p class="text-muted mb-0">Projets Actifs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2 text-success"></i>Mes Projets
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if projects %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Projet</th>
+                                            <th>Service</th>
+                                            <th>Budget</th>
+                                            <th>Statut</th>
+                                            <th>Date limite</th>
+                                            <th>Date création</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for project in projects %}
+                                            <tr>
+                                                <td>
+                                                    <strong>{{ project.name }}</strong>
+                                                    <br><small class="text-muted">{{ project.description|truncatewords:10 }}</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark">{{ project.get_service_display }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold">{{ project.budget_range }}</span>
+                                                </td>
+                                                <td>
+                                                    {% if project.status == 'published' %}
+                                                        <span class="badge bg-success">Publié</span>
+                                                    {% elif project.status == 'in_progress' %}
+                                                        <span class="badge bg-warning">En cours</span>
+                                                    {% elif project.status == 'completed' %}
+                                                        <span class="badge bg-info">Terminé</span>
+                                                    {% elif project.status == 'cancelled' %}
+                                                        <span class="badge bg-danger">Annulé</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">{{ project.get_status_display }}</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    {% if project.deadline %}
+                                                        <small class="text-warning">{{ project.deadline|date:"d/m/Y" }}</small>
+                                                    {% else %}
+                                                        <small class="text-muted">Aucune</small>
+                                                    {% endif %}
+                                                </td>
+                                                <td>
+                                                    <small>{{ project.created_at|date:"d/m/Y" }}</small>
+                                                </td>
+                                                <td>
+                                                    <a href="{% url 'customer:project_detail' project.id %}" class="btn btn-sm btn-outline-success" title="Voir le projet">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="{% url 'customer:project_edit' project.id %}" class="btn btn-sm btn-outline-primary" title="Modifier le projet">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+                                <h4 class="text-muted">Aucun projet pour le moment</h4>
+                                <p class="text-muted mb-4">Commencez par publier votre premier projet</p>
+                                <a href="{% url 'customer:post_project' %}" class="btn btn-success">
+                                    <i class="fas fa-plus me-2"></i>Créer un Projet
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

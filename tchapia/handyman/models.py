@@ -13,8 +13,8 @@ VERIFICATION_STATUS_CHOICES = [
 class Handyman(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='handyman_profile')
     experience_years = models.PositiveIntegerField(default=0)
-    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, help_text='Rate per hour in XAF')
-    skills = models.TextField(help_text='List your skills separated by commas')
+    hourly_rate = models.DecimalField(max_digits=8, decimal_places=2, help_text='Rate per hour in XAF', blank=True, null=True)
+    skills = models.TextField(help_text='List your skills separated by commas', blank=True, null=True)
     availability = models.BooleanField(default=True)
     verification_status = models.CharField(max_length=20, choices=VERIFICATION_STATUS_CHOICES, default='pending')
     id_card_number = models.CharField(max_length=50, blank=True, null=True)
@@ -68,3 +68,25 @@ class HandymanRating(models.Model):
     class Meta:
         db_table = 'handyman_handymanrating'
         unique_together = ['handyman', 'customer', 'project']
+
+class HandymanNotification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('new_project', 'New Project'),
+        ('project_update', 'Project Update'),
+        ('message', 'Message'),
+    ]
+
+    handyman = models.ForeignKey(Handyman, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    project = models.ForeignKey('customer.Project', on_delete=models.CASCADE, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.handyman.user.first_name} - {self.title}"
+
+    class Meta:
+        db_table = 'handyman_notification'
+        ordering = ['-created_at']

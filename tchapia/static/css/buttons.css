@@ -1,0 +1,459 @@
+/* ================================================
+   BUTTON SYSTEM - TCHAPIA
+   ================================================
+   Complete button component system with variants
+   ================================================ */
+
+/* =====================================
+   BASE BUTTON STYLES
+   ===================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+
+  font-family: var(--font-primary);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+
+  cursor: pointer;
+  transition: all var(--transition-base);
+
+  /* Prevent focus outline on click but keep for keyboard navigation */
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Ripple effect for better UX */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width var(--transition-fast), height var(--transition-fast);
+}
+
+.btn:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* =====================================
+   BUTTON SIZES
+   ===================================== */
+
+.btn-xs {
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  border-radius: var(--radius-base);
+}
+
+.btn-sm {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  border-radius: var(--radius-md);
+}
+
+.btn-base {
+  padding: var(--spacing-3) var(--spacing-6);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+.btn-lg {
+  padding: var(--spacing-4) var(--spacing-8);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+  border-radius: var(--radius-xl);
+}
+
+.btn-xl {
+  padding: var(--spacing-5) var(--spacing-10);
+  font-size: var(--text-xl);
+  line-height: 1.5;
+  border-radius: var(--radius-2xl);
+}
+
+/* =====================================
+   PRIMARY BUTTONS (Green - Cameroon inspired)
+   ===================================== */
+
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  background-color: var(--color-primary-dark);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =====================================
+   SECONDARY BUTTONS (Gold - Cameroon star)
+   ===================================== */
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  color: var(--color-gray-900);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-secondary-dark);
+  border-color: var(--color-secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:active {
+  background-color: var(--color-secondary-dark);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =====================================
+   ACCENT BUTTONS (Red - Cameroon flag)
+   ===================================== */
+
+.btn-accent {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-accent:hover {
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-accent:active {
+  background-color: var(--color-accent-dark);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* =====================================
+   OUTLINE BUTTONS
+   ===================================== */
+
+.btn-outline-primary {
+  background-color: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline-secondary {
+  background-color: transparent;
+  border-color: var(--color-secondary-dark);
+  color: var(--color-secondary-dark);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-gray-900);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline-accent {
+  background-color: transparent;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-outline-accent:hover {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =====================================
+   GHOST BUTTONS
+   ===================================== */
+
+.btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-gray-700);
+}
+
+.btn-ghost:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+}
+
+.btn-ghost-primary {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-primary);
+}
+
+.btn-ghost-primary:hover {
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-dark);
+}
+
+/* =====================================
+   STATUS BUTTONS
+   ===================================== */
+
+.btn-success {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-white);
+}
+
+.btn-success:hover {
+  background-color: var(--color-success-dark);
+  border-color: var(--color-success-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-warning {
+  background-color: var(--color-warning);
+  border-color: var(--color-warning);
+  color: var(--color-white);
+}
+
+.btn-warning:hover {
+  background-color: var(--color-warning-dark);
+  border-color: var(--color-warning-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-error {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: var(--color-white);
+}
+
+.btn-error:hover {
+  background-color: var(--color-error-dark);
+  border-color: var(--color-error-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-info {
+  background-color: var(--color-info);
+  border-color: var(--color-info);
+  color: var(--color-white);
+}
+
+.btn-info:hover {
+  background-color: var(--color-info-dark);
+  border-color: var(--color-info-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =====================================
+   SPECIAL BUTTONS
+   ===================================== */
+
+/* Full width button */
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* Loading state */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1em;
+  height: 1em;
+  margin: -0.5em 0 0 -0.5em;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: btn-loading 0.6s linear infinite;
+  color: inherit;
+}
+
+@keyframes btn-loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Icon buttons */
+.btn-icon {
+  padding: var(--spacing-3);
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+}
+
+.btn-icon.btn-sm {
+  padding: var(--spacing-2);
+}
+
+.btn-icon.btn-lg {
+  padding: var(--spacing-4);
+}
+
+/* Social buttons for WhatsApp, etc. */
+.btn-whatsapp {
+  background-color: #25D366;
+  border-color: #25D366;
+  color: var(--color-white);
+}
+
+.btn-whatsapp:hover {
+  background-color: #128C7E;
+  border-color: #128C7E;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Mobile Money buttons */
+.btn-mtn {
+  background-color: #FFCC00;
+  border-color: #FFCC00;
+  color: var(--color-gray-900);
+  font-weight: var(--font-semibold);
+}
+
+.btn-mtn:hover {
+  background-color: #E6B800;
+  border-color: #E6B800;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-orange {
+  background-color: #FF6600;
+  border-color: #FF6600;
+  color: var(--color-white);
+  font-weight: var(--font-semibold);
+}
+
+.btn-orange:hover {
+  background-color: #E55A00;
+  border-color: #E55A00;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* =====================================
+   BUTTON GROUPS
+   ===================================== */
+
+.btn-group {
+  display: inline-flex;
+  gap: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-group .btn {
+  border-radius: 0;
+  border-right-width: 0;
+}
+
+.btn-group .btn:first-child {
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.btn-group .btn:last-child {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  border-right-width: 1px;
+}
+
+.btn-group .btn:hover {
+  z-index: 1;
+  border-right-width: 1px;
+  transform: none;
+}
+
+/* =====================================
+   RESPONSIVE DESIGN
+   ===================================== */
+
+@media (max-width: 640px) {
+  .btn-responsive {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn-group-responsive {
+    flex-direction: column;
+  }
+
+  .btn-group-responsive .btn {
+    border-radius: 0;
+    border-right-width: 1px;
+    border-bottom-width: 0;
+  }
+
+  .btn-group-responsive .btn:first-child {
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .btn-group-responsive .btn:last-child {
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    border-bottom-width: 1px;
+  }
+}

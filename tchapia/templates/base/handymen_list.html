@@ -1,0 +1,290 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-success mb-2">
+                    <i class="fas fa-users me-3"></i>Nos Artisans
+                </h1>
+                <p class="lead text-muted">Découvrez nos artisans qualifiés et vérifiés</p>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white p-4 rounded-3 shadow-sm mb-4">
+            <label class="form-label text-dark fw-bold mb-3">
+                <i class="fas fa-filter text-success me-2"></i>Filtrer les artisans
+            </label>
+                <form method="GET" id="filter-form">
+                    <div class="row g-3">
+                        <!-- Service Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tools me-1"></i>Service
+                            </label>
+                            <select name="service" class="form-select" onchange="submitForm()">
+                                <option value="">Tous les services</option>
+                                {% for value, label in service_choices %}
+                                    <option value="{{ value }}" {% if current_service == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Region Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-map-marker-alt me-1"></i>Région
+                            </label>
+                            <select name="region" class="form-select" onchange="submitForm()">
+                                <option value="">Toutes les régions</option>
+                                {% for value, label in region_choices %}
+                                    <option value="{{ value }}" {% if current_region == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- City Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-city me-1"></i>Ville
+                            </label>
+                            <input type="text" name="city" class="form-control"
+                                   placeholder="Ex: Douala" value="{{ current_city }}"
+                                   onkeyup="delayedSubmit()">
+                        </div>
+
+                        <!-- Availability Filter -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-clock me-1"></i>Disponibilité
+                            </label>
+                            <select name="availability" class="form-select" onchange="submitForm()">
+                                <option value="">Tous</option>
+                                <option value="available" {% if current_availability == 'available' %}selected{% endif %}>
+                                    Disponible
+                                </option>
+                                <option value="unavailable" {% if current_availability == 'unavailable' %}selected{% endif %}>
+                                    Non disponible
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Clear Filters Button -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Effacer les filtres
+                            </a>
+                        </div>
+                    </div>
+                </form>
+        </div>
+
+        <!-- Results Header -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <span class="badge bg-success">{{ handymen_count }}</span>
+                        artisan{{ handymen_count|pluralize }} trouvé{{ handymen_count|pluralize }}
+                    </h5>
+                    <div class="text-muted">
+                        <i class="fas fa-sort me-1"></i>Triés par statut de vérification
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Artisans Grid -->
+        {% if handymen %}
+            <div class="row g-4">
+                {% for handyman in handymen %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 shadow-sm border-0 handyman-card">
+                            <!-- Profile Header -->
+                            <div class="card-header bg-white border-0 text-center position-relative">
+                                <!-- Verification Badge -->
+                                {% if handyman.verification_status == 'verified' %}
+                                    <span class="position-absolute badge rounded-pill bg-success">
+                                        <i class="fas fa-check"></i> Vérifié
+                                    </span>
+                                {% elif handyman.verification_status == 'pending' %}
+                                    <span class="position-absolute badge rounded-pill bg-warning">
+                                        <i class="fas fa-clock"></i> En attente
+                                    </span>
+                                {% endif %}
+
+                                <!-- Profile Picture -->
+                                <div class="mb-3">
+                                    {% if handyman.user.profile_picture %}
+                                        <img src="{{ handyman.user.profile_picture.url }}"
+                                             class="rounded-circle"
+                                             width="80" height="80"
+                                             style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                                             style="width: 80px; height: 80px;">
+                                            <i class="fas fa-user fa-2x"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Name and Service -->
+                                <h5 class="card-title mb-1">
+                                    {{ handyman.user.first_name }} {{ handyman.user.last_name }}
+                                </h5>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-tools me-1"></i>
+                                    {% if handyman.user.service %}
+                                        {{ handyman.user.get_service_display }}
+                                    {% else %}
+                                        Service non spécifié
+                                    {% endif %}
+                                </p>
+                            </div>
+
+                            <!-- Profile Details -->
+                            <div class="card-body">
+                                <!-- Location -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-map-marker-alt text-success me-2"></i>
+                                    <small class="text-muted">
+                                        {{ handyman.user.city }}, {{ handyman.user.get_region_display }}
+                                    </small>
+                                </div>
+
+                                <!-- Experience -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-calendar-alt text-success me-2"></i>
+                                    <small class="text-muted">
+                                        {{ handyman.experience_years }} an{{ handyman.experience_years|pluralize }} d'expérience
+                                    </small>
+                                </div>
+                                <!-- Hourly Rate -->
+                                {% if handyman.hourly_rate %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                        <small class="text-muted">
+                                            {{ handyman.hourly_rate|floatformat:0 }} XAF/heure
+                                        </small>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Rating -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="fas fa-star text-warning me-2"></i>
+                                    <small class="text-muted">
+                                        {% if handyman.average_rating > 0 %}
+                                            {{ handyman.average_rating|floatformat:1 }}/5
+                                            <span class="ms-1">({{ handyman.ratings.count }} avis)</span>
+                                        {% else %}
+                                            Pas encore d'avis
+                                        {% endif %}
+                                    </small>
+                                </div>
+
+                                <!-- Bio/Skills -->
+                                {% if handyman.user.bio %}
+                                    <p class="card-text small text-muted">
+                                        {{ handyman.user.bio|truncatewords:15 }}
+                                    </p>
+                                {% elif handyman.skills %}
+                                    <p class="card-text small text-muted">
+                                        <strong>Comp�tences:</strong> {{ handyman.skills|truncatewords:10 }}
+                                    </p>
+                                {% endif %}
+
+                                <!-- Availability Status -->
+                                <div class="mb-3">
+                                    {% if handyman.availability %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check me-1"></i>Disponible
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times me-1"></i>Non disponible
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Card Footer with Actions -->
+                            <div class="card-footer bg-white border-0">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-eye me-1"></i>Voir le profil
+                                    </button>
+                                    <button class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-phone me-1"></i>{{ handyman.user.phone }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Results -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-muted"></i>
+                </div>
+                <h4 class="text-muted mb-3">Aucun artisan trouvé</h4>
+                <p class="text-muted mb-4">
+                    Essayez de modifier vos critéres de recherche ou
+                    <a href="{% url 'base:handymen_list' %}" class="text-success">effacer tous les filtres</a>
+                </p>
+                <a href="{% url 'base:home' %}" class="btn btn-success">
+                    <i class="fas fa-home me-2"></i>Retour à l'accueil
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    let searchTimeout;
+
+    function submitForm() {
+        document.getElementById('filter-form').submit();
+    }
+
+    function delayedSubmit() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+            submitForm();
+        }, 500); // Wait 500ms after user stops typing
+    }
+
+    // Add hover effects to cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.handyman-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'transform 0.2s ease';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+
+<style>
+    .handyman-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .handyman-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock content %}
