@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from .forms import PostProjectForm, CustomerProfileForm, CustomerUserProfileForm
-from .models import Customer, Project
+from .models import Customer, Project, ProjectImage
 from handyman.models import Handyman, HandymanNotification
 from userauths.models import SERVICE_CHOICES
 
@@ -14,7 +14,7 @@ def post_project_view(request):
     customer, created = Customer.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        form = PostProjectForm(request.POST)
+        form = PostProjectForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 with transaction.atomic():
@@ -22,8 +22,6 @@ def post_project_view(request):
                     project = form.save(commit=False)
                     project.customer = customer
                     project.status = 'published'
-
-                    
 
                     # Handle optional budget fields
                     if not project.budget_min:
@@ -33,16 +31,28 @@ def post_project_view(request):
 
                     project.save()
 
+                    # Handle image uploads
+                    images = form.cleaned_data.get('images', [])
+                    if not isinstance(images, list):
+                        images = [images] if images else []
+
+                    for image in images:
+                        if image:
+                            ProjectImage.objects.create(
+                                project=project,
+                                image=image
+                            )
+
                     # Get the selected service
                     selected_service = form.cleaned_data['service']
-
 
                     # Notify handymen in the same service and region
                     notification_count = notify_handymen(selected_service, project)
 
+                    image_text = f" avec {len(images)} image(s)" if images else ""
                     messages.success(
                         request,
-                        f"Projet '{project.name}' publié avec succès! "
+                        f"Projet '{project.name}' publié avec succès{image_text}! "
                         f"{notification_count} artisan(s) ont été notifié(s)."
                     )
                     return redirect('customer:dashboard')
@@ -84,10 +94,15 @@ def project_detail_view(request, project_id):
     # Get notifications related to this project (if any)
     related_notifications = HandymanNotification.objects.filter(project=project)
 
+    # Get offers for this project
+    offers = project.offers.all().select_related('handyman__user').order_by('-created_at')
+
     context = {
         'project': project,
         'customer': customer,
         'related_notifications': related_notifications,
+        'offers': offers,
+        'offers_count': offers.count(),
     }
     return render(request, 'customer/project_detail.html', context)
 
@@ -100,7 +115,7 @@ def project_edit_view(request, project_id):
     project = get_object_or_404(Project, id=project_id, customer=customer)
 
     if request.method == 'POST':
-        form = PostProjectForm(request.POST, instance=project)
+        form = PostProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             try:
                 with transaction.atomic():
@@ -115,19 +130,33 @@ def project_edit_view(request, project_id):
 
                     updated_project.save()
 
+                    # Handle new image uploads
+                    images = form.cleaned_data.get('images', [])
+                    if not isinstance(images, list):
+                        images = [images] if images else []
+
+                    for image in images:
+                        if image:
+                            ProjectImage.objects.create(
+                                project=updated_project,
+                                image=image
+                            )
+
                     # Check if service changed and notify new handymen if needed
                     selected_service = form.cleaned_data['service']
                     if project.status == 'published':
                         # Create update notifications
                         notification_count = notification_count = notify_handymen(selected_service, project)
 
+                        image_text = f" avec {len(images)} nouvelle(s) image(s)" if images else ""
                         messages.success(
                             request,
-                            f"Projet '{updated_project.name}' mis à jour avec succès! "
+                            f"Projet '{updated_project.name}' mis à jour avec succès{image_text}! "
                             f"{notification_count} artisan(s) ont été notifié(s) de la modification."
                         )
                     else:
-                        messages.success(request, f"Projet '{updated_project.name}' mis à jour avec succès!")
+                        image_text = f" avec {len(images)} nouvelle(s) image(s)" if images else ""
+                        messages.success(request, f"Projet '{updated_project.name}' mis à jour avec succès{image_text}!")
 
                     return redirect('customer:project_detail', project_id=project.id)
 
@@ -180,6 +209,33 @@ def profile_edit_view(request):
         'customer': customer,
     }
     return render(request, 'customer/profile_edit.html', context)
+
+
+@login_required
+def project_delete_view(request, project_id):
+    # Ensure user has customer profile
+    customer, created = Customer.objects.get_or_create(user=request.user)
+
+    # Get the project and ensure it belongs to the current user
+    project = get_object_or_404(Project, id=project_id, customer=customer)
+
+    # Check if project can be deleted (only draft or published projects)
+    if project.status in ['in_progress', 'completed']:
+        messages.error(request, "Vous ne pouvez pas supprimer un projet en cours ou terminé.")
+        return redirect('customer:dashboard')
+
+    if request.method == 'POST':
+        try:
+            project_name = project.name
+            project.delete()
+            messages.success(request, f"Le projet '{project_name}' a été supprimé avec succès.")
+            return redirect('customer:dashboard')
+        except Exception as e:
+            messages.error(request, f"Erreur lors de la suppression: {str(e)}")
+            return redirect('customer:dashboard')
+
+    # If not POST, redirect to dashboard
+    return redirect('customer:dashboard')
 
 
 def notify_handymen(service, project): 

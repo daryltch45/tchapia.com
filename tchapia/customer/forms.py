@@ -1,7 +1,23 @@
 from django import forms
-from .models import Project, Customer, PROJECT_STATUS_CHOICES, PRIORITY_CHOICES
+from .models import Project, Customer, ProjectImage, PROJECT_STATUS_CHOICES, PRIORITY_CHOICES
 from userauths.models import User, REGION_CHOICES, SERVICE_CHOICES, CITIES
 from datetime import date
+
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
 
 class PostProjectForm(forms.ModelForm):
     service = forms.ChoiceField(
@@ -9,11 +25,21 @@ class PostProjectForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
+    images = MultipleFileField(
+        required=False,
+        widget=MultipleFileInput(attrs={
+            'class': 'form-control',
+            'multiple': True,
+            'accept': 'image/*'
+        }),
+        help_text='Sélectionnez jusqu\'à 5 images pour illustrer votre projet'
+    )
+
     class Meta:
         model = Project
         fields = [
             'name', 'description', 'service', 'budget_min', 'budget_max',
-            'location_address', 'city', 'region', 'priority', 'deadline'
+            'location_address', 'city', 'region', 'priority', 'deadline', 'images'
         ]
         widgets = {
             'name': forms.TextInput(attrs={
@@ -78,12 +104,25 @@ class PostProjectForm(forms.ModelForm):
             if budget_min >= budget_max:
                 raise forms.ValidationError("Le budget maximum doit être supérieur au budget minimum.")
         
-        # Deadline cannot be in the past 
-        if deadline and deadline <  date.today(): 
+        # Deadline cannot be in the past
+        if deadline and deadline <  date.today():
             self.add_error('deadline', "La date limite ne peut pas être dans le passé.")
 
-
         return cleaned_data
+
+    def clean_images(self):
+        images = self.cleaned_data.get('images', [])
+        if not isinstance(images, list):
+            images = [images] if images else []
+
+        if len(images) > 5:
+            raise forms.ValidationError("Vous ne pouvez télécharger que 5 images maximum.")
+
+        for image in images:
+            if image and image.size > 5 * 1024 * 1024:  # 5MB limit
+                raise forms.ValidationError(f"L'image {image.name} est trop grande (maximum 5MB).")
+
+        return images
 
 class CustomerProfileForm(forms.ModelForm):
     class Meta:

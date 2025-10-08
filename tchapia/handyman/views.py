@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from customer.models import Project, CustomerNotification
-from .models import Handyman, ProjectOffer
+from .models import Handyman, ProjectOffer, HandymanPortfolioImage
 from .forms import HandymanProfileForm, UserProfileForm, ProjectOfferForm
 
 
@@ -69,7 +69,21 @@ def profile_edit_view(request):
                 with transaction.atomic():
                     user_form.save()
                     handyman_form.save()
-                    messages.success(request, "Profil mis à jour avec succès!")
+
+                    # Handle portfolio image uploads
+                    images = handyman_form.cleaned_data.get('portfolio_images', [])
+                    if not isinstance(images, list):
+                        images = [images] if images else []
+
+                    for image in images:
+                        if image:
+                            HandymanPortfolioImage.objects.create(
+                                handyman=handyman,
+                                image=image
+                            )
+
+                    image_text = f" avec {len(images)} nouvelle(s) image(s)" if images else ""
+                    messages.success(request, f"Profil mis à jour avec succès{image_text}!")
                     return redirect('handyman:profile_edit')
             except Exception as e:
                 messages.error(request, f"Erreur lors de la mise à jour: {str(e)}")

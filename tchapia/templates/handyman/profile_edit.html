@@ -255,6 +255,74 @@
                         </div>
                     </div>
 
+                    <!-- Portfolio Images Section -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-warning text-dark">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-images me-2"></i>Portfolio - Quelques images de vos précedent Projects
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <!-- Upload New Images -->
+                                    <div class="mb-4">
+                                        <label for="{{ handyman_form.portfolio_images.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-upload text-warning me-2"></i>Ajouter de nouvelles images
+                                        </label>
+                                        {{ handyman_form.portfolio_images }}
+                                        {% if handyman_form.portfolio_images.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in handyman_form.portfolio_images.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            {{ handyman_form.portfolio_images.help_text }}
+                                        </small>
+
+                                        <!-- Preview area for selected images -->
+                                        <div id="imagePreview" class="mt-3 d-none">
+                                            <label class="form-label small fw-semibold">Aperçu des images sélectionnées:</label>
+                                            <div id="previewContainer" class="d-flex flex-wrap gap-2"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Existing Portfolio Images -->
+                                    {% if handyman.portfolio_images_set.all %}
+                                        <div class="mb-3">
+                                            <div class="row g-3">
+                                                {% for image in handyman.portfolio_images_set.all %}
+                                                    <div class="col-md-3 col-sm-4 col-6">
+                                                        <div class="position-relative">
+                                                            <img src="{{ image.image.url }}"
+                                                                 class="img-fluid rounded shadow-sm"
+                                                                 style="width: 100%; height: 150px; object-fit: cover; cursor: pointer;"
+                                                                 alt="Portfolio image"
+                                                                 data-bs-toggle="modal"
+                                                                 data-bs-target="#portfolioModal"
+                                                                 data-image-url="{{ image.image.url }}"
+                                                                 data-image-title="{{ image.title|default:'Image du portfolio' }}"
+                                                                 data-image-desc="{{ image.description|default:'Aucune description' }}">
+                                                            {% if image.title %}
+                                                                <small class="text-muted d-block mt-1 text-center">{{ image.title }}</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-images fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Aucune image dans votre portfolio</h5>
+                                            <p class="text-muted mb-0">Ajoutez des images de vos travaux pour attirer plus de clients</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submit Buttons -->
                     <div class="row">
                         <div class="col-12">
@@ -312,4 +380,85 @@
         </div>
     </div>
 </section>
+
+<!-- Portfolio Image Modal -->
+<div class="modal fade" id="portfolioModal" tabindex="-1" aria-labelledby="portfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="portfolioModalLabel">
+                    <i class="fas fa-images text-warning me-2"></i>Portfolio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="Portfolio image" style="max-height: 70vh;">
+                <h6 id="modalImageTitle" class="mt-3 text-primary"></h6>
+                <p id="modalImageDesc" class="text-muted"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.querySelector('input[type="file"][multiple]');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const previewArea = document.getElementById('imagePreview');
+            const previewContainer = document.getElementById('previewContainer');
+
+            // Clear existing previews
+            previewContainer.innerHTML = '';
+
+            if (files.length > 0) {
+                previewArea.classList.remove('d-none');
+
+                files.forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const div = document.createElement('div');
+                            div.className = 'position-relative';
+                            div.innerHTML = `
+                                <img src="${e.target.result}"
+                                     class="img-thumbnail"
+                                     style="width: 120px; height: 120px; object-fit: cover;"
+                                     alt="Preview ${index + 1}">
+                                <small class="d-block text-center mt-1 text-muted">${file.name}</small>
+                            `;
+                            previewContainer.appendChild(div);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            } else {
+                previewArea.classList.add('d-none');
+            }
+        });
+    }
+
+    // Portfolio modal handling
+    const portfolioModal = document.getElementById('portfolioModal');
+    if (portfolioModal) {
+        portfolioModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const imageUrl = button.getAttribute('data-image-url');
+            const imageTitle = button.getAttribute('data-image-title');
+            const imageDesc = button.getAttribute('data-image-desc');
+
+            const modalImage = portfolioModal.querySelector('#modalImage');
+            const modalTitle = portfolioModal.querySelector('#modalImageTitle');
+            const modalDesc = portfolioModal.querySelector('#modalImageDesc');
+
+            modalImage.src = imageUrl;
+            modalTitle.textContent = imageTitle;
+            modalDesc.textContent = imageDesc;
+        });
+    }
+});
+</script>
+
 {% endblock content %}
