@@ -1,6 +1,7 @@
 from django import forms
 from .models import Project, PROJECT_STATUS_CHOICES, PRIORITY_CHOICES
 from userauths.models import REGION_CHOICES, SERVICE_CHOICES
+from datetime import date
 
 class PostProjectForm(forms.ModelForm):
     service = forms.ChoiceField(
@@ -70,10 +71,16 @@ class PostProjectForm(forms.ModelForm):
         cleaned_data = super().clean()
         budget_min = cleaned_data.get('budget_min')
         budget_max = cleaned_data.get('budget_max')
+        deadline = cleaned_data.get('deadline')
 
-        # Only validate budget relationship if both values are provided
+        # valid budget 
         if budget_min and budget_max:
             if budget_min >= budget_max:
                 raise forms.ValidationError("Le budget maximum doit être supérieur au budget minimum.")
+        
+        # Deadline cannot be in the past 
+        if deadline and deadline <  date.today(): 
+            self.add_error('deadline', "La date limite ne peut pas être dans le passé.")
+
 
         return cleaned_data

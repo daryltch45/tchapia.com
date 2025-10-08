@@ -13,6 +13,25 @@
             </div>
         </div>
 
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <h5 class="card-title mb-3">Actions Rapides</h5>
+                        <div class="d-flex justify-content-center gap-3 flex-wrap">
+                            <a href="{% url 'customer:post_project' %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-plus me-2"></i>Nouveau Projet
+                            </a>
+                            <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-success btn-lg">
+                                <i class="fas fa-users me-2"></i>Voir les Artisans
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-md-4">
