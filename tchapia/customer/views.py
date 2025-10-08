@@ -21,9 +21,11 @@ def post_project_view(request):
                     # Create the project
                     project = form.save(commit=False)
                     project.customer = customer
-                    project.status = 'published'  # Auto-publish
+                    project.status = 'published'
 
-                    # Handle optional budget fields (temporary fix until migration)
+                    
+
+                    # Handle optional budget fields
                     if not project.budget_min:
                         project.budget_min = 0
                     if not project.budget_max:
@@ -120,7 +122,7 @@ def project_edit_view(request, project_id):
                     # Update the project
                     updated_project = form.save(commit=False)
 
-                    # Handle optional budget fields (same fix as before)
+                    # Handle optional budget fields
                     if not updated_project.budget_min:
                         updated_project.budget_min = 0
                     if not updated_project.budget_max:
@@ -165,6 +167,8 @@ def project_edit_view(request, project_id):
     else:
         # Pre-populate form with existing project data
         form = PostProjectForm(instance=project)
+        
+        print(f"################# {project.deadline} ###############") 
 
     context = {
         'form': form,

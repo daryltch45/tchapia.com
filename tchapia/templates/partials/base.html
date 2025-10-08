@@ -130,7 +130,7 @@
               {% elif user.user_type == 'client' %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'customer:dashboard' %}" id="nav-tableau">
-                  <i class="fas fa-tachometer-alt me-1"></i>Tableau de Bord
+                  <i class="fas fa-tachometer-alt me-1"></i>Mes Projects
                 </a>
               </li>
               <li class="nav-item">
@@ -222,6 +222,7 @@
                 {% endif %}
               </ul>
             </li>
+            <!-- Dropdown NavBar -->
             <li class="nav-item dropdown">
               <a
                 class="nav-link dropdown-toggle"
@@ -232,30 +233,32 @@
                 <i class="fas fa-user-circle me-1"></i>{{ request.user.first_name|default:request.user.username }}
               </a>
               <ul class="dropdown-menu dropdown-menu-end">
+              
+              {% if request.user.user_type == 'artisan' %}
                 <li>
-                  {% if request.user.user_type == 'artisan' %}
                     <a class="dropdown-item" href="{% url 'handyman:profile_edit' %}">
                       <i class="fas fa-user me-2"></i>Mon Profil
                     </a>
-                  {% else %}
-                    <a class="dropdown-item" href="#">
-                      <i class="fas fa-user me-2"></i>Mon Profil
-                    </a>
-                  {% endif %}
-                </li>
-                {% if user.user_type == 'artisan' %}
+                  </li>
                 <li>
                   <a class="dropdown-item" href="{% url 'handyman:projects' %}">
                     <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
                   </a>
                 </li>
-                {% elif user.user_type == 'client' %}
+
+                {% else %}
                 <li>
                   <a class="dropdown-item" href="#">
-                    <i class="fas fa-project-diagram me-2"></i>Mes Projets
+                    <i class="fas fa-user me-2"></i>Mon Profil
                   </a>
                 </li>
-                {% endif %}
+              {% endif %}
+                
+              <li>
+                <a class="dropdown-item" href="#">
+                    <i class="fas fa-gear me-2"></i>Paramètres
+                </a>
+              </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                   <a class="dropdown-item text-danger" href="{% url 'userauths:logout' %}">

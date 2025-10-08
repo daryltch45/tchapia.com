@@ -52,7 +52,7 @@ class PostProjectForm(forms.ModelForm):
             'deadline': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date'
-            }),
+            },  format='%Y-%m-%d'),
         }
 
     def __init__(self, *args, **kwargs):
