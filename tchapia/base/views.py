@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from handyman import models as handyman_models
-from userauths.models import REGION_CHOICES, SERVICE_CHOICES 
+from userauths.models import REGION_CHOICES, SERVICE_CHOICES, CITIES 
 
 def home_view(request):
 
-    print("########## Current User: ", request.user)
+    print(f"########## Current User: {request.user} ######")
     context = {
         "user": request.user
     }
@@ -18,7 +18,7 @@ def handymen_list_view(request):
     service_filter = request.GET.get('service', '')
     region_filter = request.GET.get('region', '')
     city_filter = request.GET.get('city', '')
-    availability_filter = request.GET.get('availability', '')
+    verified_filter = request.GET.get('verified', '')
 
     # Apply filters
     if service_filter:
@@ -28,12 +28,12 @@ def handymen_list_view(request):
         handymen = handymen.filter(user__region=region_filter)
 
     if city_filter:
-        handymen = handymen.filter(user__city__icontains=city_filter)
+        handymen = handymen.filter(user__city=city_filter)
 
-    if availability_filter == 'available':
-        handymen = handymen.filter(availability=True)
-    elif availability_filter == 'unavailable':
-        handymen = handymen.filter(availability=False)
+    if verified_filter == 'verified':
+        handymen = handymen.filter(verification_status="verified")
+    elif verified_filter == 'pending':
+        handymen = handymen.filter(verification_status="pending")
 
     # Order by verification status and rating
     handymen = handymen.order_by('verification_status', '-created_at')
@@ -43,9 +43,10 @@ def handymen_list_view(request):
         "current_service": service_filter,
         "current_region": region_filter,
         "current_city": city_filter,
-        "current_availability": availability_filter,
+        "verified_filter": verified_filter,
         "service_choices": SERVICE_CHOICES,
         "region_choices": REGION_CHOICES,
+        "cities": CITIES,
         "handymen_count": handymen.count(),
     }
 
@@ -71,3 +72,23 @@ def services_list_view(request):
     }
 
     return render(request, "base/services_list.html", context)
+
+
+def handyman_profile_view(request, handyman_id):
+    handyman = get_object_or_404(handyman_models.Handyman, id=handyman_id)
+
+    # Get handyman's ratings and reviews
+    ratings = handyman.ratings.all().order_by('-created_at')
+
+    # Get recent projects (if any)
+    recent_projects = handyman.projects.filter(status__in=['completed', 'in_progress']).order_by('-created_at')[:3]
+
+    context = {
+        'handyman': handyman,
+        'ratings': ratings,
+        'recent_projects': recent_projects,
+        'ratings_count': ratings.count(),
+        'average_rating': handyman.average_rating,
+    }
+
+    return render(request, "base/handyman_profile.html", context)

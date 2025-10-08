@@ -69,11 +69,37 @@ class HandymanRating(models.Model):
         db_table = 'handyman_handymanrating'
         unique_together = ['handyman', 'customer', 'project']
 
+class ProjectOffer(models.Model):
+    OFFER_STATUS_CHOICES = [
+        ('pending', 'En attente'),
+        ('accepted', 'Acceptée'),
+        ('rejected', 'Refusée'),
+        ('withdrawn', 'Retirée'),
+    ]
+
+    handyman = models.ForeignKey(Handyman, on_delete=models.CASCADE, related_name='offers')
+    project = models.ForeignKey('customer.Project', on_delete=models.CASCADE, related_name='offers')
+    message = models.TextField(help_text='Message d\'accompagnement de votre offre')
+    proposed_budget = models.DecimalField(max_digits=10, decimal_places=2, help_text='Budget proposé en XAF', blank=True, null=True)
+    estimated_duration = models.CharField(max_length=100, help_text='Durée estimée (ex: 2 jours, 1 semaine)', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=OFFER_STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.handyman.user.first_name} - {self.project.name} - {self.status}"
+
+    class Meta:
+        db_table = 'handyman_projectoffer'
+        unique_together = ['handyman', 'project']
+        ordering = ['-created_at']
+
 class HandymanNotification(models.Model):
     NOTIFICATION_TYPES = [
         ('new_project', 'New Project'),
         ('project_update', 'Project Update'),
         ('message', 'Message'),
+        ('offer_status', 'Offer Status'),
     ]
 
     handyman = models.ForeignKey(Handyman, on_delete=models.CASCADE, related_name='notifications')

@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from django.http import Http404
-from .forms import PostProjectForm
+from .forms import PostProjectForm, CustomerProfileForm, CustomerUserProfileForm
 from .models import Customer, Project
 from handyman.models import Handyman, HandymanNotification
 from userauths.models import SERVICE_CHOICES
@@ -36,24 +36,9 @@ def post_project_view(request):
                     # Get the selected service
                     selected_service = form.cleaned_data['service']
 
-                    # Notify handymen in the same service and region
-                    handymen_to_notify = Handyman.objects.filter(
-                        user__service=selected_service,
-                        user__region=project.region,
-                        availability=True
-                    ).select_related('user')
 
-                    # Create notifications for handymen
-                    notification_count = 0
-                    for handyman in handymen_to_notify:
-                        HandymanNotification.objects.create(
-                            handyman=handyman,
-                            notification_type='new_project',
-                            title=f"Nouveau projet: {project.name}",
-                            message=f"Un nouveau projet '{project.name}' a été publié dans votre région ({project.get_region_display()}) pour le service {handyman.user.get_service_display()}. Budget: {project.budget_range}",
-                            project=project
-                        )
-                        notification_count += 1
+                    # Notify handymen in the same service and region
+                    notification_count = notify_handymen(selected_service, project)
 
                     messages.success(
                         request,
@@ -107,7 +92,7 @@ def project_detail_view(request, project_id):
     return render(request, 'customer/project_detail.html', context)
 
 @login_required
-def project_edit_view(request, project_id):
+def project_edit_view(request, project_id): 
     # Ensure user has customer profile
     customer, created = Customer.objects.get_or_create(user=request.user)
 
@@ -133,24 +118,8 @@ def project_edit_view(request, project_id):
                     # Check if service changed and notify new handymen if needed
                     selected_service = form.cleaned_data['service']
                     if project.status == 'published':
-                        # Only notify if project is still published
-                        handymen_to_notify = Handyman.objects.filter(
-                            user__service=selected_service,
-                            user__region=updated_project.region,
-                            availability=True
-                        ).select_related('user')
-
                         # Create update notifications
-                        notification_count = 0
-                        for handyman in handymen_to_notify:
-                            HandymanNotification.objects.create(
-                                handyman=handyman,
-                                notification_type='project_update',
-                                title=f"Projet modifié: {updated_project.name}",
-                                message=f"Le projet '{updated_project.name}' a été mis à jour. Budget: {updated_project.budget_range}",
-                                project=updated_project
-                            )
-                            notification_count += 1
+                        notification_count = notification_count = notify_handymen(selected_service, project)
 
                         messages.success(
                             request,
@@ -177,3 +146,62 @@ def project_edit_view(request, project_id):
         'is_edit': True,
     }
     return render(request, 'customer/post_project.html', context)
+
+@login_required
+def profile_edit_view(request):
+    # Ensure user is a customer
+    if request.user.user_type != 'client':
+        messages.error(request, "Accès non autorisé. Cette page est réservée aux clients.")
+        return redirect('base:home')
+
+    # Get or create customer profile
+    customer, created = Customer.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        user_form = CustomerUserProfileForm(request.POST, instance=request.user)
+        customer_form = CustomerProfileForm(request.POST, instance=customer)
+
+        if user_form.is_valid() and customer_form.is_valid():
+            try:
+                with transaction.atomic():
+                    user_form.save()
+                    customer_form.save()
+                    messages.success(request, "Profil mis à jour avec succès!")
+                    return redirect('customer:profile_edit')
+            except Exception as e:
+                messages.error(request, f"Erreur lors de la mise à jour: {str(e)}")
+    else:
+        user_form = CustomerUserProfileForm(instance=request.user)
+        customer_form = CustomerProfileForm(instance=customer)
+
+    context = {
+        'user_form': user_form,
+        'customer_form': customer_form,
+        'customer': customer,
+    }
+    return render(request, 'customer/profile_edit.html', context)
+
+
+def notify_handymen(service, project): 
+    handymen_to_notify = Handyman.objects.filter(
+        user__service=service,
+        user__region=project.region,
+        availability=True
+    ).select_related('user')
+
+    print("############# Handymen: ", handymen_to_notify)
+    # Create notifications for handymen
+    notification_count = 0
+    for handyman in handymen_to_notify:
+        HandymanNotification.objects.create(
+            handyman=handyman,
+            notification_type='new_project',
+            title=f"Nouveau projet: {project.name}",
+            message=f"Un nouveau projet '{project.name}' a été publié dans votre région ({project.get_region_display()}) pour le service {handyman.user.get_service_display()}. Budget: {project.budget_range}",
+            project=project
+        )
+        notification_count += 1
+    
+    return notification_count
+
+

@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from userauths.models import SERVICE_CHOICES
+from userauths.models import SERVICE_CHOICES, REGION_CHOICES, CITIES
 
 # Create your models here.
 
@@ -13,11 +13,12 @@ PROJECT_STATUS_CHOICES = [
 ]
 
 PRIORITY_CHOICES = [
-    ('low', 'Low'),
-    ('medium', 'Medium'),
-    ('high', 'High'),
+    ('low', 'Faible'),
+    ('medium', 'Moyenne'),
+    ('high', 'Haute'),
     ('urgent', 'Urgent'),
 ]
+
 
 class Customer(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer_profile')
@@ -49,8 +50,8 @@ class Project(models.Model):
     budget_min = models.DecimalField(max_digits=10, decimal_places=2, help_text='Minimum budget in XAF', blank=True, null=True)
     budget_max = models.DecimalField(max_digits=10, decimal_places=2, help_text='Maximum budget in XAF', blank=True, null=True)
     location_address = models.TextField()
-    city = models.CharField(max_length=100)
-    region = models.CharField(max_length=20)
+    city = models.CharField(max_length=100, choices=CITIES, blank=True, null=True)
+    region = models.CharField(max_length=20, choices=REGION_CHOICES)
     status = models.CharField(max_length=20, choices=PROJECT_STATUS_CHOICES, default='draft')
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     start_date = models.DateField(blank=True, null=True)
@@ -84,5 +85,30 @@ class Project(models.Model):
 
     class Meta:
         db_table = 'customer_project'
+        ordering = ['-created_at']
+
+
+class CustomerNotification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('new_offer', 'New Offer'),
+        ('offer_update', 'Offer Update'),
+        ('project_update', 'Project Update'),
+        ('message', 'Message'),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='notifications')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    offer = models.ForeignKey('handyman.ProjectOffer', on_delete=models.CASCADE, null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.customer.user.first_name} - {self.title}"
+
+    class Meta:
+        db_table = 'customer_notification'
         ordering = ['-created_at']
 

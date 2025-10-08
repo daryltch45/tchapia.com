@@ -94,10 +94,10 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="navbar-brand fw-bold text-success fs-3" href="/">
-          <i class="fas fa-tools me-2"></i>
-          Tchapia
-        </a>
+<a class="navbar-brand fw-bold text-success fs-3" href="{% if request.user.is_authenticated and request.user.user_type == 'artisan' %}{% url 'handyman:projects' %}{% else %}{% url 'base:home' %}{% endif %}">
+  <i class="fas fa-tools me-2"></i>
+  Tchapia
+</a>
 
         <!-- Mobile menu button -->
         <button
@@ -115,24 +115,22 @@
         <!-- Navigation items -->
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
+            {% if user.user_type != 'artisan' %}
             <li class="nav-item">
               <a class="nav-link" href="/" id="nav-home">
                 <i class="fas fa-home me-1"></i>Accueil
               </a>
             </li>
+            {% endif %}
+
             {% if user.is_authenticated %}
               {% if user.user_type == 'artisan' %}
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'handyman:projects' %}" id="nav-projets">
-                  <i class="fas fa-project-diagram me-1"></i>Projets
+                  <i class="fas fa-project-diagram me-1"></i>Tableu de Bord
                 </a>
               </li>
               {% elif user.user_type == 'client' %}
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'customer:dashboard' %}" id="nav-tableau">
-                  <i class="fas fa-tachometer-alt me-1"></i>Mes Projects
-                </a>
-              </li>
               <li class="nav-item">
               <a class="nav-link" href="{% url 'base:services_list' %}" id="nav-services">
                 <i class="fas fa-list me-1"></i>Services
@@ -143,6 +141,11 @@
                 <i class="fas fa-users me-1"></i>Artisans
               </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer:dashboard' %}" id="nav-tableau">
+                  <i class="fas fa-tachometer-alt me-1"></i>Mes Projects
+                </a>
+              </li>
               {% endif %}
             {% endif %}
           </ul>
@@ -160,7 +163,7 @@
                 id="notificationDropdown"
               >
                 <i class="fas fa-bell"></i>
-                {% if request.user.user_type == 'artisan' and unread_notifications_count > 0 %}
+                {% if unread_notifications_count > 0 %}
                   <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     {{ unread_notifications_count }}
                     <span class="visually-hidden">notifications non lues</span>
@@ -177,7 +180,7 @@
                 {% if request.user.user_type == 'artisan' %}
                   {% for notification in recent_notifications %}
                   <li>
-                    <a class="dropdown-item {% if not notification.is_read %}fw-bold{% endif %}" href="#">
+                    <a class="dropdown-item {% if not notification.is_read %}fw-bold{% endif %}" href="{% url 'handyman:project_detail' notification.project.id %}">
                       <div class="d-flex">
                         <div class="flex-shrink-0">
                           {% if notification.notification_type == 'new_project' %}
@@ -212,11 +215,51 @@
                     </a>
                   </li>
                   {% endif %}
+                {% elif request.user.user_type == 'client' %}
+                  {% for notification in recent_notifications %}
+                  <li>
+                    <a class="dropdown-item {% if not notification.is_read %}fw-bold{% endif %}" href="{% url 'customer:project_detail' notification.project.id %}">
+                      <div class="d-flex">
+                        <div class="flex-shrink-0">
+                          {% if notification.notification_type == 'new_offer' %}
+                            <i class="fas fa-handshake text-success"></i>
+                          {% elif notification.notification_type == 'offer_update' %}
+                            <i class="fas fa-edit text-warning"></i>
+                          {% elif notification.notification_type == 'project_update' %}
+                            <i class="fas fa-project-diagram text-info"></i>
+                          {% else %}
+                            <i class="fas fa-envelope text-info"></i>
+                          {% endif %}
+                        </div>
+                        <div class="flex-grow-1 ms-2">
+                          <h6 class="small mb-1">{{ notification.title }}</h6>
+                          <p class="small text-muted mb-0">{{ notification.message|truncatewords:10 }}</p>
+                          <small class="text-muted">{{ notification.created_at|timesince }}</small>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  {% empty %}
+                  <li>
+                    <div class="dropdown-item text-center text-muted">
+                      <i class="fas fa-bell-slash mb-2"></i>
+                      <p class="mb-0">Aucune notification</p>
+                    </div>
+                  </li>
+                  {% endfor %}
+                  {% if recent_notifications|length >= 5 %}
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item text-center" href="#">
+                      <i class="fas fa-eye me-2"></i>Voir toutes les notifications
+                    </a>
+                  </li>
+                  {% endif %}
                 {% else %}
                   <li>
                     <div class="dropdown-item text-center text-muted">
                       <i class="fas fa-info-circle mb-2"></i>
-                      <p class="mb-0">Les notifications sont disponibles pour les artisans</p>
+                      <p class="mb-0">Connectez-vous pour voir les notifications</p>
                     </div>
                   </li>
                 {% endif %}
@@ -240,15 +283,10 @@
                       <i class="fas fa-user me-2"></i>Mon Profil
                     </a>
                   </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'handyman:projects' %}">
-                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de Bord
-                  </a>
-                </li>
 
                 {% else %}
                 <li>
-                  <a class="dropdown-item" href="#">
+                  <a class="dropdown-item" href="{% url 'customer:profile_edit' %}">
                     <i class="fas fa-user me-2"></i>Mon Profil
                   </a>
                 </li>

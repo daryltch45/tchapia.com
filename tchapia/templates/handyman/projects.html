@@ -7,7 +7,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <h1 class="display-5 fw-bold text-success mb-2">
-                    <i class="fas fa-project-diagram me-3"></i>Projets Disponibles
+                    <i class="fas fa-project-diagram me-3"></i>Projects Disponibles
                 </h1>
                 <p class="lead text-muted">Projets dans votre service ({{ user.get_service_display }}) - {{ user.get_region_display }}</p>
             </div>
@@ -81,6 +81,7 @@
                                             </div>
                                         </div>
                                         <div class="card-body">
+                                            
                                             <p class="card-text text-muted mb-3">{{ project.description|truncatewords:20 }}</p>
 
                                             <div class="row mb-3">
@@ -112,13 +113,13 @@
                                                     <i class="fas fa-clock me-1"></i>Publié {{ project.created_at|timesince }}
                                                 </small>
                                                 <div>
-                                                    <button class="btn btn-sm btn-outline-success me-2" title="Voir les détails">
+                                                    <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-sm btn-outline-success me-2" title="Voir les détails">
                                                         <i class="fas fa-eye"></i>
-                                                    </button>
+                                                    </a>
                                                     {% if project.status == 'published' %}
-                                                    <button class="btn btn-sm btn-success" title="Faire une offre">
-                                                        <i class="fas fa-handshake me-1"></i>Offrir
-                                                    </button>
+                                                    <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-sm btn-success" title="Faire une offre">
+                                                        <i class="fas fa-handshake me-1"></i>Ouvrir
+                                                    </a>
                                                     {% endif %}
                                                 </div>
                                             </div>

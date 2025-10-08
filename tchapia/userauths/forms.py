@@ -1,9 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import User, USER_TYPE, REGION_CHOICES, SERVICE_CHOICES
+from .models import User, USER_TYPE, REGION_CHOICES, SERVICE_CHOICES, CITIES
 
 # Add empty choice for service selection
 SERVICE_FORM_CHOICES = [('', 'Sélectionnez un service')] + list(SERVICE_CHOICES)
+
+# Add empty choice for city selection
+CITIES_FORM_CHOICES = [('', 'Sélectionnez une ville')] + [choice for choice in CITIES if choice[0] != 'all']
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(widget=forms.TextInput(attrs={
@@ -22,10 +25,10 @@ class UserRegisterForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': '677123456'
     }))
-    city = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Douala'
-    }))
+    city = forms.ChoiceField(
+        choices=CITIES_FORM_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
     region = forms.ChoiceField(
         choices=REGION_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'})

@@ -24,7 +24,11 @@ def register_view(request):
     if request.user.is_authenticated:
         print("####### Already logged In !")
         messages.success(request, "You are already logged in")
-        return redirect("/")
+        if request.user.user_type == "client":
+            return redirect("base:home")
+        else:
+            return redirect("handyman:projects")
+
 
     if request.method == "POST":
         form = userauths_forms.UserRegisterForm(request.POST)
@@ -46,11 +50,11 @@ def register_view(request):
                 if user_type == "artisan":
                     handyman_models.Handyman.objects.create(user=user)
                     messages.success(request, "Compte artisan créé avec succès!")
+                    return redirect("handyman:projects")
                 elif user_type == "client":
                     customer_models.Customer.objects.create(user=user)
                     messages.success(request, "Compte client créé avec succès!")
-                
-                return redirect("base:home")
+                    return redirect("base:home")
             else:
                 messages.error(request, "Erreur d'authentification, veuillez réessayer")
         else:
@@ -66,7 +70,10 @@ def login_view(request):
       if request.user.is_authenticated:
         print("####### User Authenticated !:", request.user)
         messages.success(request, "You are already logged in")
-        return redirect("/")
+        if request.user.user_type == "client":
+            return redirect("base:home")
+        else:
+            return redirect("handyman:projects")
 
       if request.method == "POST":
           form = userauths_forms.LoginForm(request.POST)
@@ -78,7 +85,10 @@ def login_view(request):
 
           if user is not None:
                 login(request, user)
-                return redirect("/")
+                if request.user.user_type == "client":
+                    return redirect("base:home")
+                else:
+                    return redirect("handyman:projects")
           else:
               messages.error(request, "Email ou mot de passe incorrect")
       else:

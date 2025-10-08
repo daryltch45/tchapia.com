@@ -16,6 +16,20 @@ REGION_CHOICES = [
     ('west', 'West'),
 ]
 
+CITIES = [
+    ('all', 'Toutes les villes'),
+    ('douala', 'Douala'),
+    ('yaounde', 'Yaoundé'),
+    ('bafoussam', 'Bafoussam'),
+    ('bamenda', 'Bamenda'),
+    ('garoua', 'Garoua'),
+    ('maroua', 'Maroua'),
+    ('ngaoundere', 'Ngaoundéré'),
+    ('bertoua', 'Bertoua'),
+    ('ebolowa', 'Ebolowa'),
+    ('kumba', 'Kumba'),
+]
+
 USER_TYPE = [
     ('artisan', 'Artisan'),
     ('client', 'Client'),
@@ -41,7 +55,7 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=20, choices=USER_TYPE, default='customer')
     service = models.CharField(max_length=20, choices=SERVICE_CHOICES, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    city = models.CharField(max_length=100)
+    city = models.CharField(max_length=100, choices=CITIES, blank=True, null=True)
     region = models.CharField(max_length=20, choices=REGION_CHOICES)
     address = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)

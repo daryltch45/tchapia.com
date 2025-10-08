@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserChangeForm
-from .models import Handyman
-from userauths.models import User, REGION_CHOICES, SERVICE_CHOICES
+from .models import Handyman, ProjectOffer
+from userauths.models import User, REGION_CHOICES, SERVICE_CHOICES, CITIES
 
 class HandymanProfileForm(forms.ModelForm):
     class Meta:
@@ -87,10 +87,10 @@ class UserProfileForm(forms.ModelForm):
                 'rows': 2,
                 'placeholder': 'Votre adresse'
             }),
-            'city': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ville'
-            }),
+            'city': forms.Select(
+                choices=CITIES,
+                attrs={'class': 'form-select'}
+            ),
         }
 
     def __init__(self, *args, **kwargs):
@@ -100,3 +100,31 @@ class UserProfileForm(forms.ModelForm):
         self.fields['bio'].required = False
         self.fields['address'].required = False
         self.fields['city'].required = False
+
+
+class ProjectOfferForm(forms.ModelForm):
+    class Meta:
+        model = ProjectOffer
+        fields = ['message', 'proposed_budget', 'estimated_duration']
+        widgets = {
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Décrivez votre approche pour ce projet, votre expérience pertinente...'
+            }),
+            'proposed_budget': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Votre budget proposé en XAF',
+                'step': '0.01'
+            }),
+            'estimated_duration': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: 3 jours, 1 semaine, 2 semaines'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make some fields optional
+        self.fields['proposed_budget'].required = False
+        self.fields['estimated_duration'].required = False

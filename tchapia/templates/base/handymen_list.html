@@ -55,23 +55,30 @@
                             <label class="form-label fw-semibold">
                                 <i class="fas fa-city me-1"></i>Ville
                             </label>
-                            <input type="text" name="city" class="form-control"
-                                   placeholder="Ex: Douala" value="{{ current_city }}"
-                                   onkeyup="delayedSubmit()">
+                            <select name="city" class="form-select" onchange="submitForm()">
+                                <option value="">Toutes les villes</option>
+                                {% for value, label in cities %}
+                                    {% if value != 'all' %}
+                                        <option value="{{ value }}" {% if current_city == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
 
-                        <!-- Availability Filter -->
+                        <!-- Verified Filter -->
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">
-                                <i class="fas fa-clock me-1"></i>Disponibilité
+                                <i class="fas fa-clock me-1"></i>Profile Vérifié
                             </label>
-                            <select name="availability" class="form-select" onchange="submitForm()">
+                            <select name="verified" class="form-select" onchange="submitForm()">
                                 <option value="">Tous</option>
-                                <option value="available" {% if current_availability == 'available' %}selected{% endif %}>
-                                    Disponible
+                                <option value="verified" {% if verified_filter == 'verified' %}selected{% endif %}>
+                                    Vérifié
                                 </option>
-                                <option value="unavailable" {% if current_availability == 'unavailable' %}selected{% endif %}>
-                                    Non disponible
+                                <option value="unverified" {% if verified_filter == 'pending' %}selected{% endif %}>
+                                    En attente
                                 </option>
                             </select>
                         </div>
@@ -219,9 +226,9 @@
                             <!-- Card Footer with Actions -->
                             <div class="card-footer bg-white border-0">
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-success btn-sm">
+                                    <a href="{% url 'base:handyman_profile' handyman.id %}" class="btn btn-success btn-sm">
                                         <i class="fas fa-eye me-1"></i>Voir le profil
-                                    </button>
+                                    </a>
                                     <button class="btn btn-outline-success btn-sm">
                                         <i class="fas fa-phone me-1"></i>{{ handyman.user.phone }}
                                     </button>
