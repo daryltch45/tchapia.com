@@ -1,0 +1,262 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Page Header -->
+                <div class="text-center mb-5">
+                    <h1 class="display-5 fw-bold text-success mb-3">
+                        <i class="fas fa-user-edit me-3"></i>Modifier mon Profil
+                    </h1>
+                    <p class="lead text-muted">
+                        Mettez à jour vos informations personnelles et préférences
+                    </p>
+                    <div class="bg-success mx-auto" style="width: 60px; height: 3px; border-radius: 2px;"></div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <!-- Personal Information -->
+                        <div class="col-lg-6">
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-success text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-user me-2"></i>Informations Personnelles
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user text-success me-2"></i>Prénom
+                                            </label>
+                                            {{ user_form.first_name }}
+                                            {% if user_form.first_name.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.first_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-user text-success me-2"></i>Nom de famille
+                                            </label>
+                                            {{ user_form.last_name }}
+                                            {% if user_form.last_name.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.last_name.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.email.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-envelope text-success me-2"></i>Email
+                                        </label>
+                                        {{ user_form.email }}
+                                        {% if user_form.email.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.email.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.phone.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-phone text-success me-2"></i>Téléphone
+                                        </label>
+                                        {{ user_form.phone }}
+                                        {% if user_form.phone.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.phone.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">Optionnel</small>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.region.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-map-marker-alt text-success me-2"></i>Région
+                                            </label>
+                                            {{ user_form.region }}
+                                            {% if user_form.region.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.region.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="{{ user_form.city.id_for_label }}" class="form-label fw-semibold">
+                                                <i class="fas fa-city text-success me-2"></i>Ville
+                                            </label>
+                                            {{ user_form.city }}
+                                            {% if user_form.city.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in user_form.city.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="{{ user_form.address.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-home text-success me-2"></i>Adresse
+                                        </label>
+                                        {{ user_form.address }}
+                                        {% if user_form.address.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.address.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">Optionnel</small>
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <label for="{{ user_form.bio.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-info-circle text-success me-2"></i>Bio
+                                        </label>
+                                        {{ user_form.bio }}
+                                        {% if user_form.bio.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in user_form.bio.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Présentez-vous en quelques mots (optionnel)
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Preferences -->
+                        <div class="col-lg-6">
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-credit-card me-2"></i>Préférences de Paiement
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="mb-3">
+                                        <label for="{{ customer_form.preferred_payment_method.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-money-bill-wave text-primary me-2"></i>Mode de paiement préféré
+                                        </label>
+                                        {{ customer_form.preferred_payment_method }}
+                                        {% if customer_form.preferred_payment_method.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in customer_form.preferred_payment_method.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Optionnel - Aide les artisans à connaître vos préférences
+                                        </small>
+                                    </div>
+
+                                    <div class="mb-0">
+                                        <label for="{{ customer_form.mobile_money_number.id_for_label }}" class="form-label fw-semibold">
+                                            <i class="fas fa-mobile-alt text-primary me-2"></i>Numéro Mobile Money
+                                        </label>
+                                        {{ customer_form.mobile_money_number }}
+                                        {% if customer_form.mobile_money_number.errors %}
+                                            <div class="text-danger small mt-1">
+                                                {% for error in customer_form.mobile_money_number.errors %}{{ error }}{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">
+                                            Optionnel - Pour les paiements Mobile Money
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Account Statistics -->
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-info text-white">
+                                    <h4 class="mb-0">
+                                        <i class="fas fa-chart-bar me-2"></i>Statistiques du Compte
+                                    </h4>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="row text-center">
+                                        <div class="col-6 mb-3">
+                                            <i class="fas fa-project-diagram fa-2x text-info mb-2"></i>
+                                            <h4 class="text-info">{{ customer.total_projects }}</h4>
+                                            <small class="text-muted">Projets Totaux</small>
+                                        </div>
+                                        <div class="col-6 mb-3">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                            <h4 class="text-success">{{ customer.completed_projects }}</h4>
+                                            <small class="text-muted">Projets Terminés</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Membre depuis {{ customer.created_at|date:"F Y" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="card border-0 bg-light">
+                                <div class="card-body text-center p-4">
+                                    <h6 class="card-title mb-3">Actions Rapides</h6>
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'customer:post_project' %}" class="btn btn-success">
+                                            <i class="fas fa-plus me-2"></i>Nouveau Projet
+                                        </a>
+                                        <a href="{% url 'customer:dashboard' %}" class="btn btn-outline-success">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Mes Projets
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow border-0">
+                                <div class="card-body text-center p-4">
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                        <a href="{% url 'customer:dashboard' %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                                            <i class="fas fa-times me-2"></i>Annuler
+                                        </a>
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

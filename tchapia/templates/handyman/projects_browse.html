@@ -1,0 +1,321 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-success mb-2">
+                    <i class="fas fa-project-diagram me-3"></i>Parcourir les Projets
+                </h1>
+                <p class="lead text-muted">Découvrez tous les projets disponibles et trouvez ceux qui vous conviennent</p>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white p-4 rounded-3 shadow-sm mb-4">
+            <label class="form-label text-dark fw-bold mb-3">
+                <i class="fas fa-filter text-success me-2"></i>Filtrer les projets
+            </label>
+            <form method="GET" id="filter-form">
+                <div class="row g-3">
+                    <!-- Service Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tools me-1"></i>Service
+                        </label>
+                        <select name="service" class="form-select" onchange="submitForm()">
+                            <option value="">Tous les services</option>
+                            {% for value, label in service_choices %}
+                                <option value="{{ value }}" {% if current_service == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Region Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-map-marker-alt me-1"></i>Région
+                        </label>
+                        <select name="region" class="form-select" onchange="submitForm()">
+                            <option value="">Toutes les régions</option>
+                            {% for value, label in region_choices %}
+                                <option value="{{ value }}" {% if current_region == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- City Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-city me-1"></i>Ville
+                        </label>
+                        <select name="city" class="form-select" onchange="submitForm()">
+                            <option value="">Toutes les villes</option>
+                            {% for value, label in cities %}
+                                {% if value != 'all' %}
+                                    <option value="{{ value }}" {% if current_city == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Priority Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Priorité
+                        </label>
+                        <select name="priority" class="form-select" onchange="submitForm()">
+                            <option value="">Toutes priorités</option>
+                            {% for value, label in priority_choices %}
+                                <option value="{{ value }}" {% if current_priority == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Budget Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-money-bill-wave me-1"></i>Budget
+                        </label>
+                        <select name="budget" class="form-select" onchange="submitForm()">
+                            <option value="">Tous budgets</option>
+                            {% for value, label in budget_choices %}
+                                <option value="{{ value }}" {% if current_budget == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Clear Filters Button -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <a href="{% url 'handyman:projects_browse' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Effacer les filtres
+                        </a>
+                        <small class="text-muted ms-3">
+                            <i class="fas fa-info-circle me-1"></i>
+                            {{ projects.count }} projet{{ projects.count|pluralize }} trouvé{{ projects.count|pluralize }}
+                        </small>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Statistics Summary -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-list fa-2x text-success mb-2"></i>
+                        <h4 class="text-success">{{ projects.count }}</h4>
+                        <p class="text-muted mb-0">Projets Filtrés</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-eye fa-2x text-info mb-2"></i>
+                        <h4 class="text-info">{{ published_projects }}</h4>
+                        <p class="text-muted mb-0">Nouveaux Projets</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-cogs fa-2x text-warning mb-2"></i>
+                        <h4 class="text-warning">{{ in_progress_projects }}</h4>
+                        <p class="text-muted mb-0">En Cours</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-2x text-primary mb-2"></i>
+                        <h4 class="text-primary">{{ total_projects }}</h4>
+                        <p class="text-muted mb-0">Total Disponible</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects List -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2 text-success"></i>Projets Disponibles
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if projects %}
+                            <div class="row">
+                                {% for project in projects %}
+                                <div class="col-lg-6 mb-4">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-header bg-light d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1 fw-bold">{{ project.name }}</h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>{{ project.customer.user.first_name }} {{ project.customer.user.last_name }}
+                                                </small>
+                                            </div>
+                                            <div class="text-end">
+                                                {% if project.status == 'published' %}
+                                                    <span class="badge bg-success">Nouveau</span>
+                                                {% elif project.status == 'in_progress' %}
+                                                    <span class="badge bg-warning">En cours</span>
+                                                {% endif %}
+
+                                                {% if project.priority == 'urgent' %}
+                                                    <span class="badge bg-danger">Urgent</span>
+                                                {% elif project.priority == 'high' %}
+                                                    <span class="badge bg-warning">Priorité Haute</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Project Image Preview -->
+                                            {% if project.project_images.all %}
+                                                <div class="mb-3">
+                                                    <div class="d-flex gap-2 flex-wrap">
+                                                        {% for image in project.project_images.all|slice:":3" %}
+                                                            <img src="{{ image.image.url }}"
+                                                                 class="rounded"
+                                                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                                                 alt="Project image">
+                                                        {% endfor %}
+                                                        {% if project.project_images.all.count > 3 %}
+                                                            <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
+                                                                 style="width: 60px; height: 60px;">
+                                                                <small>+{{ project.project_images.all.count|add:"-3" }}</small>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                            <p class="card-text text-muted mb-3">{{ project.description|truncatewords:20 }}</p>
+
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Service</small>
+                                                    <span class="badge bg-primary">{{ project.get_service_display }}</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Budget</small>
+                                                    <span class="fw-bold text-success">{{ project.budget_range }}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Localisation</small>
+                                                    <span><i class="fas fa-map-marker-alt text-success me-1"></i>{{ project.city }}, {{ project.get_region_display }}</span>
+                                                </div>
+                                                {% if project.deadline %}
+                                                <div class="col-6">
+                                                    <small class="text-muted d-block">Date limite</small>
+                                                    <span class="text-warning"><i class="fas fa-calendar me-1"></i>{{ project.deadline|date:"d/m/Y" }}</span>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock me-1"></i>Publié {{ project.created_at|timesince }}
+                                                </small>
+                                                <div>
+                                                    <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-sm btn-outline-success me-2" title="Voir les détails">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    {% if project.status == 'published' %}
+                                                    <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-sm btn-success" title="Faire une offre">
+                                                        <i class="fas fa-handshake me-1"></i>Postuler
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Pagination would go here if needed -->
+
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-project-diagram fa-4x text-muted mb-3"></i>
+                                <h4 class="text-muted">Aucun projet trouvé</h4>
+                                <p class="text-muted mb-4">Aucun projet ne correspond à vos critères de recherche.</p>
+                                <p class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Essayez de modifier les filtres pour voir plus de projets.
+                                </p>
+                                <a href="{% url 'handyman:projects_browse' %}" class="btn btn-success">
+                                    <i class="fas fa-times me-2"></i>Effacer tous les filtres
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 bg-success text-white">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <i class="fas fa-search fa-2x mb-2"></i>
+                                <h6>Recherche Avancée</h6>
+                                <p class="small mb-0">Utilisez les filtres pour trouver les projets parfaits</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-images fa-2x mb-2"></i>
+                                <h6>Aperçu Visuel</h6>
+                                <p class="small mb-0">Voyez les images des projets avant de postuler</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-handshake fa-2x mb-2"></i>
+                                <h6>Candidature Facile</h6>
+                                <p class="small mb-0">Postulez en un clic sur les projets qui vous intéressent</p>
+                            </div>
+                            <div class="col-md-3">
+                                <i class="fas fa-star fa-2x mb-2"></i>
+                                <h6>Réputation</h6>
+                                <p class="small mb-0">Construisez votre réputation en réalisant des projets de qualité</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function submitForm() {
+    document.getElementById('filter-form').submit();
+}
+</script>
+
+{% endblock content %}

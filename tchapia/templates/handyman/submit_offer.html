@@ -1,0 +1,237 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au projet
+                </a>
+            </div>
+        </div>
+
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h1 class="h3 mb-2">
+                            {% if is_edit %}
+                                <i class="fas fa-edit me-2 text-warning"></i>Modifier votre offre
+                            {% else %}
+                                <i class="fas fa-handshake me-2 text-success"></i>Faire une offre
+                            {% endif %}
+                        </h1>
+                        <p class="text-muted mb-3">
+                            {% if is_edit %}
+                                Modifiez votre proposition pour le projet: <strong>{{ project.name }}</strong>
+                            {% else %}
+                                Soumettez votre proposition pour le projet: <strong>{{ project.name }}</strong>
+                            {% endif %}
+                        </p>
+                        {% if is_edit and offer %}
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Offre originale soumise le {{ offer.created_at|date:"d M Y à H:i" }}
+                            </div>
+                        {% endif %}
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge bg-primary">{{ project.get_service_display }}</span>
+                            <span class="badge bg-info">{{ project.get_city_display }}, {{ project.get_region_display }}</span>
+                            <span class="badge bg-success">{{ project.budget_range }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Offer Form -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">
+                            {% if is_edit %}
+                                <i class="fas fa-edit me-2"></i>Modifier votre offre
+                            {% else %}
+                                <i class="fas fa-edit me-2"></i>Détails de votre offre
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <!-- Message Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.message.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-comment me-2"></i>Message *
+                                </label>
+                                {{ form.message }}
+                                <div class="form-text">
+                                    Expliquez pourquoi vous êtes le bon candidat pour ce projet, décrivez votre expérience pertinente et votre approche.
+                                </div>
+                                {% if form.message.errors %}
+                                    <div class="text-danger small mt-1">{{ form.message.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Proposed Budget Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.proposed_budget.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Budget proposé (XAF)
+                                </label>
+                                <div class="input-group">
+                                    {{ form.proposed_budget }}
+                                    <span class="input-group-text">XAF</span>
+                                </div>
+                                <div class="form-text">
+                                    Budget suggéré du client: {{ project.budget_range }}
+                                </div>
+                                {% if form.proposed_budget.errors %}
+                                    <div class="text-danger small mt-1">{{ form.proposed_budget.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Estimated Duration Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.estimated_duration.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-clock me-2"></i>Durée estimée
+                                </label>
+                                {{ form.estimated_duration }}
+                                <div class="form-text">
+                                    Estimation du temps nécessaire pour terminer le projet (ex: 3 jours, 1 semaine, 15 jours)
+                                </div>
+                                {% if form.estimated_duration.errors %}
+                                    <div class="text-danger small mt-1">{{ form.estimated_duration.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-{% if is_edit %}warning{% else %}success{% endif %} btn-lg">
+                                    {% if is_edit %}
+                                        <i class="fas fa-save me-2"></i>Sauvegarder les modifications
+                                    {% else %}
+                                        <i class="fas fa-paper-plane me-2"></i>Envoyer l'offre
+                                    {% endif %}
+                                </button>
+                                <a href="{% url 'handyman:project_detail' project.id %}" class="btn btn-outline-secondary btn-lg">
+                                    Annuler
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Summary Sidebar -->
+            <div class="col-lg-4">
+                <!-- Project Info -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Résumé du projet
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="mb-2">{{ project.name }}</h6>
+                        <p class="text-muted small mb-3">{{ project.description|truncatewords:25 }}</p>
+
+                        <div class="row small mb-2">
+                            <div class="col-5 text-muted">Service:</div>
+                            <div class="col-7">{{ project.get_service_display }}</div>
+                        </div>
+                        <div class="row small mb-2">
+                            <div class="col-5 text-muted">Localisation:</div>
+                            <div class="col-7">{{ project.get_city_display }}</div>
+                        </div>
+                        <div class="row small mb-2">
+                            <div class="col-5 text-muted">Budget:</div>
+                            <div class="col-7 text-success fw-bold">{{ project.budget_range }}</div>
+                        </div>
+                        {% if project.deadline %}
+                        <div class="row small mb-2">
+                            <div class="col-5 text-muted">Deadline:</div>
+                            <div class="col-7">{{ project.deadline|date:"d M Y" }}</div>
+                        </div>
+                        {% endif %}
+                        <div class="row small">
+                            <div class="col-5 text-muted">Priorité:</div>
+                            <div class="col-7">
+                                <span class="badge bg-{% if project.priority == 'urgent' %}danger{% elif project.priority == 'high' %}warning{% else %}info{% endif %}">
+                                    {{ project.get_priority_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Info -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            {% if project.customer.user.profile_picture %}
+                                <img src="{{ project.customer.user.profile_picture.url }}"
+                                     class="rounded-circle me-2"
+                                     width="40" height="40"
+                                     style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2"
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-0">{{ project.customer.user.first_name }} {{ project.customer.user.last_name }}</h6>
+                                <small class="text-muted">{{ project.customer.user.get_city_display }}</small>
+                            </div>
+                        </div>
+                        <div class="row text-center small">
+                            <div class="col-6">
+                                <div class="text-primary fw-bold">{{ project.customer.total_projects }}</div>
+                                <div class="text-muted">Projet{{ project.customer.total_projects|pluralize }}</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-success fw-bold">{{ project.customer.completed_projects }}</div>
+                                <div class="text-muted">Terminé{{ project.customer.completed_projects|pluralize }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div class="card shadow-sm border-0 border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>Conseils pour une bonne offre
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small mb-0">
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Soyez précis sur votre approche
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Mentionnez votre expérience similaire
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Proposez un budget réaliste
+                            </li>
+                            <li class="mb-0">
+                                <i class="fas fa-check text-success me-2"></i>
+                                Donnez une estimation de temps précise
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

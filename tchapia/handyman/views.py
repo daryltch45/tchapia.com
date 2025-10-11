@@ -51,6 +51,107 @@ def projects_view(request):
     return render(request, 'handyman/projects.html', context)
 
 @login_required
+def projects_browse_view(request):
+    # Ensure user is a handyman
+    if request.user.user_type != 'artisan':
+        messages.error(request, "Accès non autorisé. Cette page est réservée aux artisans.")
+        return redirect('base:home')
+
+    # Get or create handyman profile
+    handyman, created = Handyman.objects.get_or_create(user=request.user)
+
+    # Get filter parameters
+    service_filter = request.GET.get('service', '')
+    region_filter = request.GET.get('region', '')
+    city_filter = request.GET.get('city', '')
+    status_filter = request.GET.get('status', '')
+    priority_filter = request.GET.get('priority', '')
+    budget_filter = request.GET.get('budget', '')
+
+    # Start with base queryset - all published and in_progress projects
+    projects = Project.objects.filter(
+        status__in=['published', 'in_progress']
+    ).select_related('customer__user').prefetch_related('project_images')
+
+    # Apply filters
+    if service_filter:
+        projects = projects.filter(service=service_filter)
+    else:
+        # Default to handyman's service if no filter specified
+        projects = projects.filter(service=request.user.service)
+
+    if region_filter:
+        projects = projects.filter(region=region_filter)
+    else:
+        # Default to handyman's region if no filter specified
+        projects = projects.filter(region=request.user.region)
+
+    if city_filter:
+        projects = projects.filter(city=city_filter)
+
+    if status_filter:
+        projects = projects.filter(status=status_filter)
+
+    if priority_filter:
+        projects = projects.filter(priority=priority_filter)
+
+    if budget_filter:
+        if budget_filter == 'low':
+            projects = projects.filter(budget_max__lte=50000)
+        elif budget_filter == 'medium':
+            projects = projects.filter(budget_max__gt=50000, budget_max__lte=200000)
+        elif budget_filter == 'high':
+            projects = projects.filter(budget_max__gt=200000)
+        elif budget_filter == 'negotiable':
+            projects = projects.filter(budget_max__isnull=True, budget_min__isnull=True)
+
+    # Order by priority (urgent first) then by creation date
+    projects = projects.order_by('-priority', '-created_at')
+
+    # Get project count by status for all projects in handyman's service/region
+    base_projects = Project.objects.filter(
+        service=request.user.service,
+        region=request.user.region,
+        status__in=['published', 'in_progress']
+    )
+
+    total_projects = base_projects.count()
+    published_projects = base_projects.filter(status='published').count()
+    in_progress_projects = base_projects.filter(status='in_progress').count()
+
+    # Import choices for filters
+    from userauths.models import SERVICE_CHOICES, REGION_CHOICES, CITIES
+    from customer.models import PRIORITY_CHOICES, PROJECT_STATUS_CHOICES
+
+    context = {
+        'handyman': handyman,
+        'projects': projects,
+        'total_projects': total_projects,
+        'published_projects': published_projects,
+        'in_progress_projects': in_progress_projects,
+        # Filter choices
+        'service_choices': SERVICE_CHOICES,
+        'region_choices': REGION_CHOICES,
+        'cities': CITIES,
+        'priority_choices': PRIORITY_CHOICES,
+        'status_choices': [('published', 'Publié'), ('in_progress', 'En cours')],
+        'budget_choices': [
+            ('low', 'Petit budget (< 50,000 XAF)'),
+            ('medium', 'Budget moyen (50,000 - 200,000 XAF)'),
+            ('high', 'Gros budget (> 200,000 XAF)'),
+            ('negotiable', 'Budget à négocier'),
+        ],
+        # Current filter values
+        'current_service': service_filter,
+        'current_region': region_filter,
+        'current_city': city_filter,
+        'current_status': status_filter,
+        'current_priority': priority_filter,
+        'current_budget': budget_filter,
+    }
+    return render(request, 'handyman/projects_browse.html', context)
+
+@login_required
 def profile_edit_view(request):
     # Ensure user is a handyman
     if request.user.user_type != 'artisan':

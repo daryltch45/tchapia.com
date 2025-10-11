@@ -1,0 +1,315 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                </a>
+            </div>
+        </div>
+
+        <!-- Profile Header -->
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body text-center">
+                        <!-- Verification Badge -->
+                        {% if handyman.verification_status == 'verified' %}
+                            <div class="mb-3">
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-check me-1"></i>Profil Vérifié
+                                </span>
+                            </div>
+                        {% elif handyman.verification_status == 'pending' %}
+                            <div class="mb-3">
+                                <span class="badge bg-warning fs-6">
+                                    <i class="fas fa-clock me-1"></i>En attente de vérification
+                                </span>
+                            </div>
+                        {% endif %}
+
+                        <!-- Profile Picture -->
+                        <div class="mb-3">
+                            {% if handyman.user.profile_picture %}
+                                <img src="{{ handyman.user.profile_picture.url }}"
+                                     class="rounded-circle border"
+                                     width="120" height="120"
+                                     style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center border"
+                                     style="width: 120px; height: 120px;">
+                                    <i class="fas fa-user fa-3x"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Name and Service -->
+                        <h3 class="card-title mb-2">
+                            {{ handyman.user.first_name }} {{ handyman.user.last_name }}
+                        </h3>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-tools me-2"></i>
+                            {% if handyman.user.service %}
+                                {{ handyman.user.get_service_display }}
+                            {% else %}
+                                Service non spécifié
+                            {% endif %}
+                        </p>
+
+                        <!-- Rating -->
+                        <div class="mb-3">
+                            {% if average_rating > 0 %}
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= average_rating %}
+                                            <i class="fas fa-star text-warning me-1"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted me-1"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="fw-bold">{{ average_rating|floatformat:1 }}/5</span>
+                                <small class="text-muted">({{ ratings_count }} avis)</small>
+                            {% else %}
+                                <span class="text-muted">Pas encore d'avis</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Contact Actions -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success btn-lg">
+                                <i class="fas fa-phone me-2"></i>{{ handyman.user.phone }}
+                            </button>
+                            {% if handyman.user.whatsapp %}
+                                <button class="btn btn-outline-success">
+                                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Info Card -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h6 class="card-title mb-3">
+                            <i class="fas fa-info-circle me-2"></i>Informations
+                        </h6>
+
+                        <!-- Location -->
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-map-marker-alt text-success me-3"></i>
+                            <div>
+                                <small class="text-muted d-block">Localisation</small>
+                                <span>{{ handyman.user.city }}, {{ handyman.user.get_region_display }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-calendar-alt text-success me-3"></i>
+                            <div>
+                                <small class="text-muted d-block">Expérience</small>
+                                <span>{{ handyman.experience_years }} an{{ handyman.experience_years|pluralize }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Hourly Rate -->
+                        {% if handyman.hourly_rate %}
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-money-bill-wave text-success me-3"></i>
+                                <div>
+                                    <small class="text-muted d-block">Tarif horaire</small>
+                                    <span>{{ handyman.hourly_rate|floatformat:0 }} XAF</span>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Availability -->
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-clock text-success me-3"></i>
+                            <div>
+                                <small class="text-muted d-block">Disponibilité</small>
+                                {% if handyman.availability %}
+                                    <span class="badge bg-success">Disponible</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Non disponible</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Bio/About Section -->
+                {% if handyman.user.bio or handyman.skills %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-user me-2"></i>À propos
+                            </h5>
+                            {% if handyman.user.bio %}
+                                <p class="mb-3">{{ handyman.user.bio }}</p>
+                            {% endif %}
+                            {% if handyman.skills %}
+                                <div>
+                                    <h6 class="mb-2">Compétences :</h6>
+                                    <p class="text-muted">{{ handyman.skills }}</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Portfolio Section -->
+                {% if handyman.portfolio_images_set.all %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-images me-2"></i>Portfolio - Nos réalisations
+                            </h5>
+                            <div class="row g-3">
+                                {% for image in handyman.portfolio_images_set.all %}
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="position-relative">
+                                            <img src="{{ image.image.url }}"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;"
+                                                 alt="Portfolio image"
+                                                 data-bs-toggle="modal"
+                                                 data-bs-target="#portfolioModal"
+                                                 data-image-url="{{ image.image.url }}"
+                                                 data-image-title="{{ image.title|default:'Portfolio' }}"
+                                                 data-image-desc="{{ image.description|default:'Réalisation de notre équipe' }}">
+                                            {% if image.title %}
+                                                <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-75 text-white p-2 rounded-bottom">
+                                                    <small class="fw-semibold">{{ image.title }}</small>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Recent Projects -->
+                {% if recent_projects %}
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-briefcase me-2"></i>Projets récents
+                            </h5>
+                            <div class="row">
+                                {% for project in recent_projects %}
+                                    <div class="col-md-6 mb-3">
+                                        <div class="border rounded p-3">
+                                            <h6 class="mb-1">{{ project.name }}</h6>
+                                            <p class="text-muted small mb-2">{{ project.description|truncatewords:15 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="badge bg-{% if project.status == 'completed' %}success{% else %}warning{% endif %}">
+                                                    {{ project.get_status_display }}
+                                                </span>
+                                                <small class="text-muted">{{ project.created_at|date:"M Y" }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Reviews Section -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-star me-2"></i>Avis clients ({{ ratings_count }})
+                        </h5>
+
+                        {% if ratings %}
+                            {% for rating in ratings %}
+                                <div class="border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">{{ rating.customer.user.first_name }} {{ rating.customer.user.last_name }}</h6>
+                                            <div class="mb-1">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= rating.rating %}
+                                                        <i class="fas fa-star text-warning"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star text-muted"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">{{ rating.created_at|date:"d M Y" }}</small>
+                                    </div>
+                                    {% if rating.review %}
+                                        <p class="mb-0">{{ rating.review }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Aucun avis pour le moment</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Portfolio Image Modal -->
+<div class="modal fade" id="portfolioModal" tabindex="-1" aria-labelledby="portfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="portfolioModalLabel">
+                    <i class="fas fa-images text-primary me-2"></i>Portfolio
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="Portfolio image" style="max-height: 70vh;">
+                <h6 id="modalImageTitle" class="mt-3 text-primary"></h6>
+                <p id="modalImageDesc" class="text-muted"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Portfolio modal handling
+    const portfolioModal = document.getElementById('portfolioModal');
+    if (portfolioModal) {
+        portfolioModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const imageUrl = button.getAttribute('data-image-url');
+            const imageTitle = button.getAttribute('data-image-title');
+            const imageDesc = button.getAttribute('data-image-desc');
+
+            const modalImage = portfolioModal.querySelector('#modalImage');
+            const modalTitle = portfolioModal.querySelector('#modalImageTitle');
+            const modalDesc = portfolioModal.querySelector('#modalImageDesc');
+
+            modalImage.src = imageUrl;
+            modalTitle.textContent = imageTitle;
+            modalDesc.textContent = imageDesc;
+        });
+    }
+});
+</script>
+
+{% endblock content %}

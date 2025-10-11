@@ -1,0 +1,301 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <!-- Back Button -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <a href="{% url 'handyman:projects' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour aux projets
+                </a>
+            </div>
+        </div>
+
+        <!-- Project Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <h1 class="h3 mb-2">{{ project.name }}</h1>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <span class="badge bg-primary fs-6">
+                                        <i class="fas fa-tools me-1"></i>{{ project.get_service_display }}
+                                    </span>
+                                    <span class="badge bg-{% if project.status == 'published' %}success{% elif project.status == 'in_progress' %}warning{% else %}secondary{% endif %} fs-6">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                    <span class="badge bg-{% if project.priority == 'urgent' %}danger{% elif project.priority == 'high' %}warning{% else %}info{% endif %} fs-6">
+                                        <i class="fas fa-flag me-1"></i>{{ project.get_priority_display }}
+                                    </span>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-calendar me-1"></i>Publié le {{ project.created_at|date:"d M Y à H:i" }}
+                                    {% if project.deadline %}
+                                        • <i class="fas fa-clock me-1"></i>Date limite: {{ project.deadline|date:"d M Y" }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                {% if is_assigned %}
+                                    <div class="alert alert-success mb-2">
+                                        <i class="fas fa-check-circle me-2"></i>Vous êtes assigné à ce projet
+                                    </div>
+                                {% endif %}
+                                <div class="mb-2">
+                                    <span class="h4 text-success">{{ project.budget_range }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Project Description -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-file-alt me-2"></i>Description du projet
+                        </h5>
+                        <p class="card-text">{{ project.description|linebreaks }}</p>
+                    </div>
+                </div>
+
+                <!-- Location Details -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>Localisation
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong>Région:</strong> {{ project.get_region_display }}
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Ville:</strong> {{ project.get_city_display }}
+                            </div>
+                            <div class="col-12">
+                                <strong>Adresse:</strong><br>
+                                {{ project.location_address }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Timeline -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>Calendrier
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-play-circle text-success fa-2x mb-2"></i>
+                                    <div class="small text-muted">Date de début</div>
+                                    <div class="fw-bold">
+                                        {% if project.start_date %}
+                                            {{ project.start_date|date:"d M Y" }}
+                                        {% else %}
+                                            À négocier
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-flag-checkered text-warning fa-2x mb-2"></i>
+                                    <div class="small text-muted">Date limite</div>
+                                    <div class="fw-bold">
+                                        {% if project.deadline %}
+                                            {{ project.deadline|date:"d M Y" }}
+                                        {% else %}
+                                            Flexible
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <div class="text-center p-3 bg-light rounded">
+                                    <i class="fas fa-stop-circle text-danger fa-2x mb-2"></i>
+                                    <div class="small text-muted">Date de fin</div>
+                                    <div class="fw-bold">
+                                        {% if project.end_date %}
+                                            {{ project.end_date|date:"d M Y" }}
+                                        {% else %}
+                                            À définir
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Customer Information -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <!-- Customer Profile -->
+                        <div class="d-flex align-items-center mb-3">
+                            {% if project.customer.user.profile_picture %}
+                                <img src="{{ project.customer.user.profile_picture.url }}"
+                                     class="rounded-circle me-3"
+                                     width="60" height="60"
+                                     style="object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user fa-lg"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ project.customer.user.first_name }} {{ project.customer.user.last_name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    {{ project.customer.user.get_city_display }}, {{ project.customer.user.get_region_display }}
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Customer Stats -->
+<!--                         <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="border-end">
+                                    <div class="h5 mb-0 text-primary">{{ project.customer.total_projects }}</div>
+                                    <small class="text-muted">Projet{{ project.customer.total_projects|pluralize }}</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="h5 mb-0 text-success">{{ project.customer.completed_projects }}</div>
+                                <small class="text-muted">Terminé{{ project.customer.completed_projects|pluralize }}</small>
+                            </div>
+                        </div> -->
+
+                        <!-- Contact Customer -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-phone me-2"></i>{{ project.customer.user.phone }}
+                            </button>
+                            {% if project.customer.user.whatsapp %}
+                                <button class="btn btn-outline-success">
+                                    <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Budget -->
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-money-bill-wave me-2"></i>Budget
+                        </h5>
+
+                        <div class="text-center">
+                            <div class="h3 text-success mb-2">{{ project.budget_range }}</div>
+                            {% if project.budget_min and project.budget_max %}
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="border-end">
+                                            <div class="text-muted small">Minimum</div>
+                                            <div class="fw-bold">{{ project.budget_min|floatformat:0 }} XAF</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted small">Maximum</div>
+                                        <div class="fw-bold">{{ project.budget_max|floatformat:0 }} XAF</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                        </h5>
+
+                        {% if is_assigned %}
+                            <div class="alert alert-info small mb-3">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Vous travaillez déjà sur ce projet
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success">
+                                    <i class="fas fa-check me-2"></i>Marquer comme terminé
+                                </button>
+                                <button class="btn btn-outline-warning">
+                                    <i class="fas fa-comment me-2"></i>Contacter le client
+                                </button>
+                            </div>
+                        {% elif project.status == 'published' %}
+                            {% if existing_offer %}
+                                <div class="alert alert-info mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Offre soumise</strong><br>
+                                    <small>Status:
+                                        <span class="badge bg-{% if existing_offer.status == 'pending' %}warning{% elif existing_offer.status == 'accepted' %}success{% else %}danger{% endif %}">
+                                            {{ existing_offer.get_status_display }}
+                                        </span>
+                                    </small><br>
+                                    <small class="text-muted">Soumise le {{ existing_offer.created_at|date:"d M Y à H:i" }}</small>
+                                </div>
+                                {% if existing_offer.status == 'pending' %}
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-info btn-lg" disabled>
+                                            <i class="fas fa-clock me-2"></i>En attente de réponse
+                                        </button>
+                                        <a href="{% url 'handyman:edit_offer' project.id %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-edit me-2"></i>Modifier l'offre
+                                        </a>
+                                    </div>
+                                {% elif existing_offer.status == 'accepted' %}
+                                    <div class="d-grid gap-2">
+                                        <div class="alert alert-success mb-2">
+                                            <i class="fas fa-check-circle me-2"></i>Offre acceptée !
+                                        </div>
+                                        <button class="btn btn-success">
+                                            <i class="fas fa-comments me-2"></i>Contacter le client
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-times-circle me-2"></i>Offre {{ existing_offer.get_status_display|lower }}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'handyman:submit_offer' project.id %}" class="btn btn-success btn-lg">
+                                        <i class="fas fa-hand-paper me-2"></i>Faire une Offre
+                                    </a>
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-share me-2"></i>Partager
+                                    </button>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-warning small">
+                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                Ce projet n'est plus disponible
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
