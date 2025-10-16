@@ -1,0 +1,48 @@
+{% extends 'partials/base.html' %}
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold text-success mb-3">
+                    <i class="fas fa-comments me-2"></i>Conversation avec {{ other_user.get_full_name|default:other_user.username }}
+                </h2>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                        {% for message in messages %}
+                        <div class="d-flex mb-3 {% if message.sender == request.user %}justify-content-end{% else %}justify-content-start{% endif %}">
+                            <div class="p-3 rounded {% if message.sender == request.user %}bg-success text-white{% else %}bg-light border{% endif %}" style="max-width: 70%;">
+                                <div class="small mb-1">
+                                    <span class="fw-bold">{{ message.sender.get_full_name|default:message.sender.username }}</span>
+                                    <span class="text-muted">{{ message.timestamp|date:'d/m/Y H:i' }}</span>
+                                </div>
+                                <div>{{ message.content }}</div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted">Aucun message pour le moment.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <form method="post" class="card border-0 shadow-sm">
+                    {% csrf_token %}
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <textarea name="content" class="form-control" rows="3" placeholder="Écrivez votre message..." required></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-2"></i>Envoyer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
