@@ -1,5 +1,50 @@
 {% extends 'partials/base.html' %}
 
+        <!-- Notifications Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-2 shadow-lg border-warning">
+                    <div class="card-header bg-warning bg-gradient">
+                        <h4 class="mb-0 text-dark d-flex align-items-center justify-content-between">
+                            <span><i class="fas fa-bell me-2"></i>Notifications</span>
+                            <a href="{% url 'customer:notifications' %}" class="btn btn-dark btn-lg fw-bold px-4 position-relative">
+                                View All
+                                <i class="fas fa-arrow-right ms-2"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </h4>
+                    </div>
+                    <div class="card-body bg-light">
+                        {% if recent_notifications %}
+                            <ul class="list-group list-group-flush">
+                                {% for notification in recent_notifications %}
+                                    <li class="list-group-item {% if not notification.is_read %}fw-bold{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-bell me-2 text-warning"></i>
+                                                <span>{{ notification.title }}</span>
+                                                <br><small class="text-muted">{{ notification.message|truncatewords:15 }}</small>
+                                            </div>
+                                            <small class="text-muted">{{ notification.created_at|date:"d/m/Y H:i" }}</small>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="text-center text-muted py-3">
+                                <i class="fas fa-bell fa-2x mb-2"></i>
+                                <p>No notifications yet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
 {% block content %}
 <section class="py-5 bg-light">
     <div class="container">
@@ -19,14 +64,22 @@
                 <div class="card border-0 shadow-sm">
                     <div class="card-body text-center p-4">
                         <h5 class="card-title mb-3">Actions Rapides</h5>
-                        <div class="d-flex justify-content-center gap-3 flex-wrap">
-                            <a href="{% url 'customer:post_project' %}" class="btn btn-success btn-lg">
-                                <i class="fas fa-plus me-2"></i>Nouveau Projet
-                            </a>
-                            <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-success btn-lg">
-                                <i class="fas fa-users me-2"></i>Voir les Artisans
-                            </a>
-                        </div>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <a href="{% url 'customer:post_project' %}" class="btn btn-success btn-lg">
+                                    <i class="fas fa-plus me-2"></i>Nouveau Projet
+                                </a>
+                                <a href="{% url 'base:handymen_list' %}" class="btn btn-outline-success btn-lg">
+                                    <i class="fas fa-users me-2"></i>Voir les Artisans
+                                </a>
+                                <a href="{% url 'customer:notifications' %}" class="btn btn-warning btn-lg fw-bold px-4 position-relative border border-2 border-dark shadow">
+                                    <i class="fas fa-bell me-2"></i>Notifications
+                                    {% if unread_notifications_count > 0 %}
+                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ unread_notifications_count }}
+                                        </span>
+                                    {% endif %}
+                                </a>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -42,10 +95,10 @@
                         <p class="text-muted mb-0">Projets Totaux</p>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
+                                    <h1 class="display-5 fw-bold text-success mb-2">
+                                        <i class="fas fa-tachometer-alt me-3"></i>My Projects
+                                    </h1>
+                                    <p class="lead text-muted">Manage your projects, track requests, and get updates in real time.</p>
                         <i class="fas fa-check-circle fa-3x text-warning mb-3"></i>
                         <h3 class="text-warning">{{ customer.completed_projects }}</h3>
                         <p class="text-muted mb-0">Projets Terminés</p>
@@ -54,20 +107,36 @@
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
+                                            <h5 class="card-title mb-3">Quick Actions</h5>
                         <i class="fas fa-clock fa-3x text-info mb-3"></i>
                         <h3 class="text-info">{{ projects.count }}</h3>
-                        <p class="text-muted mb-0">Projets Actifs</p>
+                                                    <i class="fas fa-plus-circle me-2"></i>Post a New Project
                     </div>
                 </div>
             </div>
         </div>
 
+                                            <div class="mt-3 text-muted small">
+                                                Need help? <a href="#" class="text-success">Contact support</a>
+                                            </div>
         <!-- Projects List -->
         <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white">
+                            <!-- Feedback Messages -->
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        <strong>
+                                            {% if message.tags == 'success' %}✔ Success: {% elif message.tags == 'danger' %}❌ Error: {% endif %}
+                                        </strong>
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <!-- Header -->
                         <h5 class="mb-0">
                             <i class="fas fa-list me-2 text-success"></i>Mes Projets
                         </h5>

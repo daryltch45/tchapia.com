@@ -238,6 +238,18 @@ def project_delete_view(request, project_id):
     return redirect('customer:dashboard')
 
 
+@login_required
+def notifications_view(request):
+    customer, created = Customer.objects.get_or_create(user=request.user)
+    notifications = customer.notifications.all().order_by('-created_at')
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    context = {
+        'notifications': notifications,
+        'unread_notifications_count': unread_notifications_count,
+    }
+    return render(request, 'customer/notifications.html', context)
+
+
 def notify_handymen(service, project): 
     handymen_to_notify = Handyman.objects.filter(
         user__service=service,

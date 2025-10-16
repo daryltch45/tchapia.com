@@ -1,3 +1,5 @@
+# Redirect to Django admin login if not authenticated
+LOGIN_URL = '/admin/login/'
 """
 Django settings for tchapia project.
 
@@ -27,7 +29,7 @@ SECRET_KEY = "django-insecure-s*v6tsb9-lc#6oyhvs^ig%m)_u6e4!9rdxt@cma%a-ky5y#pb7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["tchapia-4.onrender.com"]
+ALLOWED_HOSTS = ["tchapia-4.onrender.com", "127.0.0.1", "localhost"]
 
 
 # Application definition

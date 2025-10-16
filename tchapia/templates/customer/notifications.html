@@ -1,0 +1,55 @@
+{% extends 'partials/base.html' %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-success mb-2">
+                    <i class="fas fa-bell me-3"></i>My Notifications
+                </h1>
+                <p class="lead text-muted">All your notifications in one place. Stay updated on your projects and offers.</p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell text-warning me-2"></i>Notifications
+                    {% if unread_notifications_count > 0 %}
+                        <span class="badge bg-danger ms-2">{{ unread_notifications_count }} unread</span>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if notifications %}
+                    <ul class="list-group list-group-flush">
+                        {% for notification in notifications %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center {% if not notification.is_read %}fw-bold{% endif %}">
+                                <div>
+                                    <i class="fas fa-bell me-2 text-warning"></i>
+                                    <span>{{ notification.title }}</span>
+                                    <br><small class="text-muted">{{ notification.message|truncatewords:20 }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted d-block">{{ notification.created_at|date:"d/m/Y H:i" }}</small>
+                                    {% if not notification.is_read %}
+                                        <span class="badge bg-danger">Unread</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Read</span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-bell fa-2x mb-2"></i>
+                        <p>No notifications yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

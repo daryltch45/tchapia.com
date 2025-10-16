@@ -29,10 +29,13 @@
                         <!-- Messages -->
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
+                                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                        <strong>
+                                            {% if message.tags == 'success' %}✔ Succès : {% elif message.tags == 'danger' %}❌ Erreur : {% endif %}
+                                        </strong>
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
                             {% endfor %}
                         {% endif %}
 
@@ -45,11 +48,12 @@
                                     <i class="fas fa-project-diagram text-success me-2"></i>Nom du Projet
                                 </label>
                                 {{ form.name }}
-                                {% if form.name.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in form.name.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
+                                    <small class="form-text text-muted">Donnez un titre clair et précis à votre projet (ex : Réparation plomberie urgente)</small>
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
                             </div>
 
                             <!-- Service Selection -->
@@ -74,14 +78,12 @@
                                     <i class="fas fa-align-left text-success me-2"></i>Description Détaillée
                                 </label>
                                 {{ form.description }}
-                                {% if form.description.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in form.description.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
-                                <small class="form-text text-muted">
-                                    Plus votre description est détaillée, mieux les artisans pourront vous proposer un devis précis
-                                </small>
+                                    <small class="form-text text-muted">Décrivez précisément le problème ou le besoin, les attentes, le contexte, etc.</small>
+                                    {% if form.description.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.description.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
                             </div>
 
                             <!-- Project Images -->
@@ -115,20 +117,22 @@
                                     <div class="col-md-6">
                                         <label for="{{ form.budget_min.id_for_label }}" class="form-label small">Budget Minimum</label>
                                         {{ form.budget_min }}
-                                        {% if form.budget_min.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.budget_min.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
+                                            <small class="form-text text-muted">Indique le montant minimum que tu es prêt à investir</small>
+                                            {% if form.budget_min.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.budget_min.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
                                     </div>
                                     <div class="col-md-6">
                                         <label for="{{ form.budget_max.id_for_label }}" class="form-label small">Budget Maximum</label>
                                         {{ form.budget_max }}
-                                        {% if form.budget_max.errors %}
-                                            <div class="text-danger small mt-1">
-                                                {% for error in form.budget_max.errors %}{{ error }}{% endfor %}
-                                            </div>
-                                        {% endif %}
+                                            <small class="form-text text-muted">Indique le montant maximum à ne pas dépasser</small>
+                                            {% if form.budget_max.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {% for error in form.budget_max.errors %}{{ error }}{% endfor %}
+                                                </div>
+                                            {% endif %}
                                     </div>
                                 </div>
                                 {% if form.non_field_errors %}
@@ -144,11 +148,12 @@
                                     <i class="fas fa-map-marker-alt text-success me-2"></i>Adresse du Projet
                                 </label>
                                 {{ form.location_address }}
-                                {% if form.location_address.errors %}
-                                    <div class="text-danger small mt-1">
-                                        {% for error in form.location_address.errors %}{{ error }}{% endfor %}
-                                    </div>
-                                {% endif %}
+                                    <small class="form-text text-muted">Indique l’adresse précise ou le quartier concerné</small>
+                                    {% if form.location_address.errors %}
+                                        <div class="text-danger small mt-1">
+                                            {% for error in form.location_address.errors %}{{ error }}{% endfor %}
+                                        </div>
+                                    {% endif %}
                             </div>
 
                             <!-- City and Region -->
